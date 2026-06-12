@@ -3,10 +3,12 @@ import express from "express";
 import dotenv from "dotenv";
 
 import products from "./data/products.js";
+import connectDB from "./config/db.config.js";
 
 dotenv.config();
 
 const port = process.env.PORT;
+connectDB();
 
 const app = express();
 
@@ -23,7 +25,9 @@ app.get("/api/v1/products/:id", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} on port: ${port}`);
+  console.log(
+    `Server running in ${process.env.NODE_ENV} mode on port: ${port}`,
+  );
 });
 
 // const express = require('express')
