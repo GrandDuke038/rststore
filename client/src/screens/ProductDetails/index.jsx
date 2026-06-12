@@ -1,13 +1,24 @@
 import { Link, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import products from "@data/products";
+
 import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
 import Rating from "@components/ProductCard/Rating";
 import QuantitySelector from "./QuantitySelector";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const ProductDetailsScreen = () => {
   const { id: productId } = useParams();
-  const product = products.find((prod) => prod._id === productId);
+  const [product, setProduct] = useState({});
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const { data } = await axios.get(`/api/v1/products/${productId}`);
+      setProduct(data);
+    };
+
+    fetchProduct();
+  }, [productId]);
 
   return (
     <div className="bg-white pb-18 pt-6 sm:pb-24">
