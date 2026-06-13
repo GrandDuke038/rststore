@@ -20,12 +20,20 @@
     "client": " npm run dev --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
+  "imports": {
+    "#config/*": "./server/config/*",
+    "#data/*": "./server/data/*"
+  },
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.7.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.29.7",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
     "concurrently": "^10.0.3",
     "nodemon": "^3.1.14"
   }
