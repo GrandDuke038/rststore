@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./server",
+    "paths": {
+      "#data/*": ["data/*"],
+      "#config/*": ["config/*"],
+      "#models/*": ["models/*"]
+    }
+  },
+  "include": ["server/**/*"],
+  "exclude": ["node_modules", "**/node_modules/*"]
+}

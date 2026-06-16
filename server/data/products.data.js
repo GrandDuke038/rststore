@@ -1,6 +1,5 @@
 export default [
   {
-    _id: "1",
     name: "Women's Summer Dress",
     price: 3999,
     description:
@@ -28,7 +27,7 @@ Customers love the lightweight feel and stylish design of this dress. It's perfe
     `,
   },
   {
-    _id: "2",
+ 
     name: "Men's Slim Fit Jeans",
     price: 5999,
     description:
@@ -56,7 +55,7 @@ These jeans have received rave reviews for their perfect fit and high-quality ma
     `,
   },
   {
-    _id: "3",
+    
     name: "Women's Casual Blouse",
     price: 2999,
     description:
@@ -84,7 +83,7 @@ Customers appreciate the versatility and comfort of this blouse. It's a favorite
     `,
   },
   {
-    _id: "4",
+    
     name: "Men's Casual T-Shirt",
     price: 1999,
     description:
@@ -112,7 +111,7 @@ This T-shirt is praised for its comfort and durability. It's a staple in many wa
     `,
   },
   {
-    _id: "5",
+    
     name: "Women's High Heels",
     price: 7999,
     description:
@@ -139,7 +138,7 @@ These heels are loved for their elegance and comfort. Perfect for formal events 
     `,
   },
   {
-    _id: "6",
+   
     name: "Men's Leather Jacket",
     price: 19999,
     description:
@@ -166,7 +165,7 @@ Highly praised for its quality and design, this jacket is a favorite among fashi
     `,
   },
   {
-    _id: "7",
+    
     name: "Women's Yoga Pants",
     price: 3499,
     description:
@@ -194,7 +193,7 @@ Customers love the fit and comfort of these yoga pants. They are perfect for bot
     `,
   },
   {
-    _id: "8",
+  
     name: "Men's Running Shoes",
     price: 7999,
     description:
@@ -221,7 +220,7 @@ Praised for their comfort and performance, these shoes are a favorite among runn
     `,
   },
   {
-    _id: "9",
+   
     name: "Women's Winter Coat",
     price: 12999,
     description:
@@ -249,7 +248,7 @@ Customers appreciate the warmth and style of this coat. It's a must-have for win
     `,
   },
   {
-    _id: "10",
+    
     name: "Men's Dress Shirt",
     price: 4499,
     description:
