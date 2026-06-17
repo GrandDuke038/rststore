@@ -5,7 +5,8 @@
       "#data/*": ["data/*"],
       "#config/*": ["config/*"],
       "#models/*": ["models/*"],
-      "#routes/*": ["routes/*"]
+      "#routes/*": ["routes/*"],
+      "#middlewares/*": ["middlewares/*"]
     }
   },
   "include": ["server/**/*"],

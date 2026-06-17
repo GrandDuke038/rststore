@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import products from "#data/products.data.js";
 import connectDB from "#config/db.config.js";
 import productRoutes from "#routes/product.routes.js";
+import { errorHandler } from "#middlewares/error.middleware.js";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ connectDB();
 
 const app = express();
 app.use(morgan("dev"));
+
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
   res.send("API is running.....");
