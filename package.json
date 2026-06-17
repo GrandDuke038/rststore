@@ -25,7 +25,8 @@
   "imports": {
     "#config/*": "./server/config/*",
     "#data/*": "./server/data/*",
-    "#models/*": "./server/models/*"
+    "#models/*": "./server/models/*",
+    "#routes/*": "./server/routes/*"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -4,7 +4,8 @@
     "paths": {
       "#data/*": ["data/*"],
       "#config/*": ["config/*"],
-      "#models/*": ["models/*"]
+      "#models/*": ["models/*"],
+      "#routes/*": ["routes/*"]
     }
   },
   "include": ["server/**/*"],
