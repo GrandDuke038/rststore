@@ -5,7 +5,7 @@ import ProductDetailsScreen from "@screens/ProductDetails";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
-import store from "store";
+import store from "./store";
 
 const router = createBrowserRouter([
   {
@@ -28,7 +28,7 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <Provider>
+    <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>
   );
