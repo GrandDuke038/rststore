@@ -1,5 +1,7 @@
 import { useGetProductsQuery } from "@slices/productApiSlice";
 import ProductCard from "@components/ProductCard";
+import Loader from "@components/Loader";
+import Alert from "@components/Alert";
 
 const HomeScreen = () => {
   const { data: products, isLoading, isError, error } = useGetProductsQuery();
@@ -10,9 +12,9 @@ const HomeScreen = () => {
         <h1 className="text-2xl font-bold text-slate-950">Latest Products</h1>
 
         {isLoading ? (
-          <p>Loading...</p>
+          <Loader />
         ) : isError ? (
-          <p>{error.data?.message || error?.error}</p>
+          <Alert type="error">{error.data?.message || error?.error}</Alert>
         ) : (
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {products.map((product) => (
