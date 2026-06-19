@@ -1,9 +1,6 @@
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
 
-const QuantitySelector = ({ countInStock }) => {
-  const [quantity, setQuantity] = useState(1);
-
+const QuantitySelector = ({ countInStock, quantity, setQuantity }) => {
   const handleDecrement = () => {
     setQuantity((prevQuantity) => Math.max(prevQuantity - 1, 1));
   };

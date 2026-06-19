@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 
 import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
@@ -7,15 +7,28 @@ import QuantitySelector from "./QuantitySelector";
 import { useGetProductDetailsQuery } from "@slices/productApiSlice";
 import Loader from "@components/Loader";
 import Alert from "@components/Alert";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@slices/cartSlice";
+import { useState } from "react";
 
 const ProductDetailsScreen = () => {
   const { id: productId } = useParams();
+
+  const [qty, setQty] = useState(1);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const {
     data: product,
     isLoading,
     isError,
     error,
   } = useGetProductDetailsQuery(productId);
+
+  const handleAddToCart = () => {
+    dispatch(addToCart({ ...product, qty }));
+    navigate("/cart");
+  };
 
   return (
     <div className="bg-white pb-18 pt-6 sm:pb-24">
@@ -72,9 +85,17 @@ const ProductDetailsScreen = () => {
                 </div>
               </div>
               {/* Quantity selector */}
-              <QuantitySelector countInStock={product.countInStock} />
+              <QuantitySelector
+                Quantity={qty}
+                setQuantity={setQty}
+                countInStock={product.countInStock}
+              />
               {/* Add to Cart button*/}
-              <button className=" focus:outline focus:ring-2 mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white transition-all cursor-pointer hover:bg-indigo-700">
+              <button
+                onClick={handleAddToCart}
+                disabled={product.countInStock === 0}
+                className=" focus:outline focus:ring-2 mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white transition-all cursor-pointer hover:bg-indigo-700"
+              >
                 Add to cart
               </button>
               <div className="mt-10 border-t border-gray-200 pt-8">

@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { updateCart } from "@utils/cartUtils";
 
 const initialState = localStorage.getItem("cart")
   ? JSON.parse(localStorage.getItem("cart"))
@@ -14,27 +15,13 @@ const cartSlice = createSlice({
         (cartItem) => cartItem._id === item._id,
       );
       if (existingItem) {
-        state.cartItem = state.cartItem.map((cartItem) => {
+        state.cartItems = state.cartItems.map((cartItem) => {
           return cartItem._id === existingItem._id ? item : cartItem;
         });
       } else {
         state.cartItems = [...state.cartItems, item];
       }
-      //calculate items prices
-      state.itemsPrice = state.cartItems.reduce(
-        (acc, currVal) => acc + currVal.price * currVal.qty,
-      );
-      //calculate shipping price
-      state.shippingPrice = state.itemPrice > 5000 ? 0 : 2000;
-
-      //calculate tax price
-      state.taxPrice = 0.18 * state.itemsPrice;
-
-      //calculate total price
-      state.totalPrice =
-        state.itemsPrice + state.shippingPrice + state.taxPrice;
-
-      localStorage.setItem("cart", JSON.stringify(state));
+      return updateCart(state);
     },
   },
 });
