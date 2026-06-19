@@ -6,6 +6,7 @@ import ProductDetailsScreen from "@screens/ProductDetails";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store";
+import CartScreen from "@screens/Cart";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
         element: <HomeScreen />,
       },
       { path: "/product/:id", element: <ProductDetailsScreen /> },
+      { path: "/cart", element: <CartScreen /> },
       {
         path: "*",
         element: <ErrorScreen />,
@@ -35,19 +37,3 @@ function App() {
 }
 
 export default App;
-
-// const App = () => {
-//   return (
-//     <div className="flex min-h-screen flex-col bg-slate-200">
-//       <Header />
-
-//       <div className="h-14 sm:h-18 lg:h-28" />
-//       <div className="grow">
-//         <HomeScreen />
-//       </div>
-//       <Footer />
-//     </div>
-//   );
-// };
-
-// export default App;
