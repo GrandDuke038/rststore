@@ -1,4 +1,4 @@
-import { addToCart } from "@slices/cartSlice";
+import { addToCart, removeFromCart } from "@slices/cartSlice";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,12 @@ const CartScreen = () => {
   const handleAddToCart = (product, qty) => {
     dispatch(addToCart({ ...product, qty }));
     navigate("/cart");
+  };
+  const handleRemoveFromCart = (productId) => {
+    dispatch(removeFromCart({ productId }));
+  };
+  const handCheckout = () => {
+    navigate("/login?redirect=/shipping");
   };
 
   return (
@@ -42,6 +48,7 @@ const CartScreen = () => {
                     product={product}
                     index={index}
                     handleAddToCart={handleAddToCart}
+                    handleRemoveFromCart={handleRemoveFromCart}
                   />
                 ))}
               </ul>
@@ -53,6 +60,7 @@ const CartScreen = () => {
               shippingPrice={cart.shippingPrice}
               taxPrice={cart.taxPrice}
               totalPrice={cart.totalPrice}
+              handleCheckout={handCheckout}
             />
           </div>
         )}

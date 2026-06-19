@@ -2,7 +2,12 @@ import { Link } from "react-router-dom";
 import ItemQuantityDropdown from "./ItemQuantityDropdown";
 import { CheckIcon, ClockIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-const CartItem = ({ product, index, handleAddToCart }) => {
+const CartItem = ({
+  product,
+  index,
+  handleAddToCart,
+  handleRemoveFromCart,
+}) => {
   return (
     <li className="flex py-6 sm:py-10">
       <div className="shrink-0">
@@ -25,7 +30,10 @@ const CartItem = ({ product, index, handleAddToCart }) => {
                 </Link>
               </h3>
               <div className="absolute right-0 top-0">
-                <button className="  cursor-pointer m-2 inline-flex p-2 text-green-500 hover:text-slate-500">
+                <button
+                  onClick={() => handleRemoveFromCart(product._id)}
+                  className="  cursor-pointer m-2 inline-flex p-2 text-green-500 hover:text-slate-500"
+                >
                   <span className="sr-only">Remove</span>
                   <XMarkIcon className="h-5 w-5" />
                 </button>
