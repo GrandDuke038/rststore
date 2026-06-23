@@ -9,6 +9,7 @@ import connectDB from "#config/db.config.js";
 import productRoutes from "#routes/product.routes.js";
 import { errorHandler } from "#middlewares/error.middleware.js";
 import userRoutes from "#routes/user.routes.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ connectDB();
 
 const app = express();
 app.use(express.json()); //request body parsing
+app.use(cookieParser()); //Cookies parsing
+
 app.use(morgan("dev"));
 
 app.use(errorHandler);
