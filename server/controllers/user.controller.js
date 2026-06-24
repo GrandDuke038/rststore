@@ -53,7 +53,12 @@ const registerUser = async (req, res) => {
  */
 
 const logoutUser = async (req, res) => {
-  res.send("Logout user");
+  res.cookie("jwt", "", {
+    httpsOnly: true,
+    expires: new Date(0),
+  });
+
+  res.status(200).json({ message: "User logged out" });
 };
 /**
  * @desc  Get user profile

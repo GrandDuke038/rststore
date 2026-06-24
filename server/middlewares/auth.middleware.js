@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-import userModel from "#models/user.model.js";
+import UserModel from "#models/user.model.js";
 
 const protect = async (req, res, next) => {
   let token;
@@ -22,7 +22,7 @@ const protect = async (req, res, next) => {
   }
 };
 
-const admin = (res, req, next) => {
+const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {
