@@ -28,7 +28,8 @@
     "#models/*": "./server/models/*",
     "#routes/*": "./server/routes/*",
     "#middlewares/*": "./server/middlewares/*",
-    "#controllers/*": "./server/controllers/*"
+    "#controllers/*": "./server/controllers/*",
+    "#utils/*": "./server/utils/*"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

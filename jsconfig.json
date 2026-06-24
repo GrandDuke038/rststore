@@ -7,7 +7,8 @@
       "#models/*": ["models/*"],
       "#routes/*": ["routes/*"],
       "#middlewares/*": ["middlewares/*"],
-      "#controllers/*": ["controllers/*"]
+      "#controllers/*": ["controllers/*"],
+      "#utils/*": ["utils/*"]
     }
   },
   "include": ["server/**/*"],
