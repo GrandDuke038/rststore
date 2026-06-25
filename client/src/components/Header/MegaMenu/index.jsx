@@ -27,7 +27,7 @@ const MegaMenu = () => {
 
   return (
     <>
-      <nav className="relative z-50 mx-auto hidden max-w-7xl gap-10 bg-white px-3 py-2.5 sm:px-6 lg:flex lg:px-8">
+      <nav className="relative z-10 mx-auto hidden max-w-7xl gap-10 bg-white px-3 py-2.5 sm:px-6 lg:flex lg:px-8">
         <MegaMenuItem
           label="All Categories"
           currentItem={currentMenu}
