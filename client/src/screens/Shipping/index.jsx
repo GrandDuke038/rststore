@@ -30,7 +30,7 @@ const ShippingScreen = () => {
     <div className="mt-10">
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="mx-auto">
-          <CheckoutSteps step1 step2 />
+          <CheckoutSteps step1 step2 step3 />
         </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h2 className="tracking-light mt-10 text-center text-2xl font-bold leading-9 text-slate-900">
