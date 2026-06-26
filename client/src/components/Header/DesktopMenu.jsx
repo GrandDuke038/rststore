@@ -16,8 +16,10 @@ const DesktopMenu = () => {
 
   const { cartItems } = useSelector((state) => state.cart);
   const { userInfo } = useSelector((state) => state.auth);
+  console.log(userInfo);
 
   const [isOpen, setIsOpen] = useState(false);
+
   const menuRef = useRef(null);
 
   const [logoutApiCall] = useLogoutMutation();
