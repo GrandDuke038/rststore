@@ -11,6 +11,7 @@ import LoginScreen from "@screens/Login";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ShippingScreen from "@screens/Shipping";
+import PrivateRoute from "@components/PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -25,7 +26,11 @@ const router = createBrowserRouter([
       { path: "/product/:id", element: <ProductDetailsScreen /> },
       { path: "/cart", element: <CartScreen /> },
       { path: "/login", element: <LoginScreen /> },
-      { path: "/shipping", element: <ShippingScreen /> },
+      {
+        path: "",
+        element: <PrivateRoute />,
+        children: [{ path: "/shipping", element: <ShippingScreen /> }],
+      },
       {
         path: "*",
         element: <ErrorScreen />,
