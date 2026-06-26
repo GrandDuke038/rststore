@@ -10,6 +10,7 @@ import productRoutes from "#routes/product.routes.js";
 import { errorHandler } from "#middlewares/error.middleware.js";
 import userRoutes from "#routes/user.routes.js";
 import cookieParser from "cookie-parser";
+import orderRoutes from "#routes/order.routes.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/orders", orderRoutes);
 
 app.listen(port, () => {
   console.log(
