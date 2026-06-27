@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ShippingScreen from "@screens/Shipping";
 import PrivateRoute from "@components/PrivateRoute";
 import PaymentScreen from "@screens/Payment";
+import PlaceOrderScreen from "@screens/PlaceOrder";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
         children: [{ path: "/shipping", element: <ShippingScreen /> }],
       },
       { path: "/payment", element: <PaymentScreen /> },
+      { path: "/place-order", element: <PlaceOrderScreen /> },
       {
         path: "*",
         element: <ErrorScreen />,
