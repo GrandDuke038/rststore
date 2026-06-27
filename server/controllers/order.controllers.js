@@ -1,29 +1,71 @@
 import OrderModel from "#models/order.model.js";
+
 /**
  * @desc		Create new order
  * @route		POST /api/v1/orders
  * @access	Private
  */
 const createOrder = async (req, res) => {
-  res.send("Create order");
+  const {
+    orderItems,
+    shippingAddress,
+    paymentMethod,
+    itemsPrice,
+    shippingPrice,
+    taxPrice,
+    totalPrice,
+  } = req.body;
+
+  if (orderItems && orderItems.length === 0) {
+    res.status(400);
+    throw new Error("No order items");
+  } else {
+    const order = new OrderModel({
+      orderItems: orderItems.map((item) => ({
+        ...item,
+        product: { ...item },
+      })),
+      user: req.user._id,
+      shippingAddress,
+      paymentMethod,
+      itemsPrice,
+      shippingPrice,
+      taxPrice,
+      totalPrice,
+    });
+
+    const createdOrder = await order.save();
+
+    res.status(201).json(createdOrder);
+  }
 };
 
 /**
- * @desc		Get logged in user's order
- * @route		GET /api/v1/orders/my-orders
+
+@@ -15,7 +46,8 @@ const createOrder = async (req, res) => {
  * @access	Private
  */
 const getMyOrders = async (req, res) => {
-  res.send("Get my orders");
+  const orders = await OrderModel.find({ user: req.user._id });
+  res.status(200).json(orders);
 };
 
 /**
- * @desc		Get order by ID
- * @route		GET /api/v1/orders/:id
+
+@@ -24,7 +56,16 @@ const getMyOrders = async (req, res) => {
  * @access	Private
  */
 const getOrderById = async (req, res) => {
-  res.send("Get order by ID");
+  const order = await OrderModel.findById(req.params.id).populate(
+    "user",
+    "name email",
+  );
+  if (order) {
+    res.status(200).json(order);
+  } else {
+    res.status(404);
+    throw new Error("Order not found");
+  }
 };
 
 /**
