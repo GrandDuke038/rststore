@@ -47,7 +47,6 @@ const createOrder = async (req, res) => {
  */
 const getMyOrders = async (req, res) => {
   const orders = await OrderModel.find({ user: req.user._id });
-  res.status(200).json(orders);
 };
 
 /**
@@ -110,7 +109,8 @@ const updateOrderToDelivered = async (req, res) => {
  * @access	Private/Admin
  */
 const getOrders = async (req, res) => {
-  res.send("Get all orders");
+  const orders = await OrderModel.find({}).populate("user", "name email");
+  res.status(200).json(orders);
 };
 
 export {
