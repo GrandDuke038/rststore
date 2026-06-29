@@ -2,21 +2,98 @@ import {
   CheckBadgeIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
+import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Header/Loader";
-import { useGetOrderDetailsQuery } from "@slices/orderApiSlice";
+
+import {
+  useGetOrderDetailsQuery,
+  useGetPayPalClientIdQuery,
+  usePayOrderMutation,
+} from "@slices/orderApiSlice";
+import { useEffect } from "react";
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
 
-  const { data: order, isLoading, error } = useGetOrderDetailsQuery(orderId);
+  const {
+    data: order,
+    isLoading,
+    error,
+    refetch,
+  } = useGetOrderDetailsQuery(orderId);
 
+  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+
+  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+
+  const {
+    data: paypal,
+    isLoading: loadingPayPal,
+    error: errorPayPal,
+  } = useGetPayPalClientIdQuery();
+
+  useEffect(() => {
+    if (!errorPayPal && !loadingPayPal && paypal.clientId) {
+      const loadPayPalScript = async () => {
+        paypalDispatch({
+          type: "resetOptions",
+          value: {
+            "client-id": paypal.clientId,
+            currency: "USD",
+          },
+        });
+      };
+      paypalDispatch({ type: "setLoadingStatus", value: "pending" });
+
+      if (order && !order.isPaid) {
+        if (!window.paypal) {
+          loadPayPalScript();
+        }
+      }
+    }
+  }, [order, paypal, paypalDispatch, loadingPay, errorPayPal, loadingPayPal]);
+
+  const onApprove = (data, actions) => {
+    return actions.order.capture().then(async function (details) {
+      try {
+        console.log(details);
+        await payOrder({ id: orderId, details });
+        refetch();
+        toast.success("Order paid successfully");
+      } catch (error) {
+        error?.data?.message || error?.error;
+      }
+    });
+  };
+
+  const onError = (error) => {
+    toast.error(error.message);
+  };
+
+  const createOrder = (data, actions) => {
+    return actions.order
+      .create({
+        purchase_units: [
+          {
+            amount: {
+              value: order.totalPrice,
+            },
+          },
+        ],
+      })
+      .then((orderId) => {
+        return orderId;
+      });
+  };
   return isLoading ? (
     <Loader />
   ) : error ? (
-    <Alert type="error">{error?.data?.message ?? "Error loading order"}</Alert>
+    <Alert type="error">{error}</Alert>
   ) : (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 py-16 pb-24 pt-12 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -135,7 +212,6 @@ const OrderScreen = () => {
                     ₹{order.shippingPrice}
                   </dd>
                 </div>
-
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Taxes</dt>
                   <dd className="text-sm font-medium text-gray-900">
@@ -151,6 +227,24 @@ const OrderScreen = () => {
                 </div>
               </dl>
 
+              <div className="space-y-6 border-t border-slate-200 px-4 py-6 sm:px-6">
+                {!order.isPaid && (
+                  <>
+                    {loadingPay && <Loader />}
+                    {isPending ? (
+                      <Loader />
+                    ) : (
+                      <div>
+                        <PayPalButtons
+                          createOrder={createOrder}
+                          onApprove={onApprove}
+                          onError={onError}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
               {isLoading && <Loader />}
             </div>
           </div>

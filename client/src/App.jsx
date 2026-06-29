@@ -1,3 +1,4 @@
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Layout from "@components/Layout";
 import HomeScreen from "@screens/Home";
 import ErrorScreen from "@screens/Error";
@@ -48,12 +49,14 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <Provider store={store}>
-      <RouterProvider router={router} />
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar
-      />
+      <PayPalScriptProvider deferLoading={true} options={{ currency: "USD" }}>
+        <RouterProvider router={router} />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar
+        />
+      </PayPalScriptProvider>
     </Provider>
   );
 };
