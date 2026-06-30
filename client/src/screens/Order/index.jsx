@@ -11,6 +11,7 @@ import Alert from "@components/Alert";
 import Loader from "@components/Header/Loader";
 
 import {
+  useDeliverOrderMutation,
   useGetOrderDetailsQuery,
   useGetPayPalClientIdQuery,
   usePayOrderMutation,
@@ -28,8 +29,12 @@ const OrderScreen = () => {
   } = useGetOrderDetailsQuery(orderId);
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const [deliverOrder, { isLoading: loadingDeliver }] =
+    useDeliverOrderMutation();
 
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+
+  const { userInfo } = useSelector((state) => state.auth);
 
   const {
     data: paypal,
@@ -66,7 +71,7 @@ const OrderScreen = () => {
         refetch();
         toast.success("Order paid successfully");
       } catch (error) {
-        error?.data?.message || error?.error;
+        error?.data?.message || error?.message;
       }
     });
   };
@@ -90,6 +95,17 @@ const OrderScreen = () => {
         return orderId;
       });
   };
+
+  const handleDeliver = async () => {
+    try {
+      await deliverOrder(orderId);
+      refetch();
+      toast.success("Order marked as delivered");
+    } catch (error) {
+      toast.error(error?.data?.message || error?.message);
+    }
+  };
+
   return isLoading ? (
     <Loader />
   ) : error ? (
@@ -246,6 +262,22 @@ const OrderScreen = () => {
                 )}
               </div>
               {isLoading && <Loader />}
+            </div>
+            <div className="mt-6">
+              {loadingDeliver && <Loader />}
+
+              {userInfo &&
+                userInfo.isAdmin &&
+                order.isPaid &&
+                !order.isDelivered && (
+                  <button
+                    onClick={handleDeliver}
+                    type="submit"
+                    className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm transition-all hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                  >
+                    Mark as delivered
+                  </button>
+                )}
             </div>
           </div>
         </div>
