@@ -1,9 +1,21 @@
 import ProductModel from "#models/product.model.js";
+/**
+
+ * @desc		Fetch all products
+ * @route		GET /api/v1/products
+ * @access	Public
+ */
+
 const getProducts = async (req, res) => {
   const products = await ProductModel.find({});
   res.json(products);
 };
 
+/**
+ * @desc		Fetch single product
+ * @route		GET /api/v1/products/:id
+ * @access	Public
+ */
 const getProductsById = async (req, res) => {
   const product = await ProductModel.findById(req.params.id);
   if (product) {
@@ -36,4 +48,42 @@ const createProduct = async (req, res) => {
   const createdProduct = await product.save();
   res.status(201).json(createdProduct);
 };
-export { createProduct, getProducts, getProductsById };
+
+/**
+ * @desc		Update product
+ * @route		PUT /api/v1/products/:id
+ * @access	Private/Admin
+ */
+const updateProduct = async (req, res) => {
+  const {
+    name,
+    price,
+    description,
+    image,
+    brand,
+    category,
+    countInStock,
+    content,
+  } = req.body;
+
+  const product = await ProductModel.findById(req.params.id);
+
+  if (product) {
+    product.name = name;
+    product.price = price;
+    product.description = description;
+    product.image = image;
+
+    product.brand = brand;
+    product.category = category;
+    product.countInStock = countInStock;
+    product.content = content;
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
+  } else {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+};
+export { createProduct, getProducts, getProductsById, updateProduct };
