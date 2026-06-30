@@ -1,6 +1,6 @@
 import { useGetProductsQuery } from "@slices/productApiSlice";
 import ProductCard from "@components/ProductCard";
-import Loader from "@components/Header/Loader";
+import Loader from "@components/Loader";
 import Alert from "@components/Alert";
 
 const HomeScreen = () => {

@@ -5,7 +5,7 @@ import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
 import Rating from "@components/ProductCard/Rating";
 import QuantitySelector from "./QuantitySelector";
 import { useGetProductDetailsQuery } from "@slices/productApiSlice";
-import Loader from "@components/Header/Loader";
+import Loader from "@components/Loader";
 import Alert from "@components/Alert";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@slices/cartSlice";

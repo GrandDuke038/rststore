@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import CheckoutSteps from "@components/CheckoutSteps";
-import Loader from "@components/Header/Loader/index";
+import Loader from "@components/Loader/index";
 import { clearCartItems } from "@slices/cartSlice";
 import { useCreateOrderMutation } from "@slices/orderApiSlice";
 

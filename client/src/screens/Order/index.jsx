@@ -8,7 +8,7 @@ import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import Alert from "@components/Alert";
-import Loader from "@components/Header/Loader";
+import Loader from "@components/Loader";
 
 import {
   useDeliverOrderMutation,

@@ -2,17 +2,52 @@ import { Link } from "react-router-dom";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { useGetOrdersQuery } from "@slices/orderApiSlice";
 
-const OrderListScreen = () => {
-  const { data: orders, isLoading, error } = useGetOrdersQuery();
+import {
+  useCreateProductMutation,
+  useGetProductsQuery,
+} from "@slices/productApiSlice";
+import { toast } from "react-toastify";
+
+const ProductListScreen = () => {
+  const { data: products, error, isLoading, refetch } = useGetProductsQuery();
+
+  const [createProduct, { isLoading: loadingCreate }] =
+    useCreateProductMutation();
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure?")) {
+      console.log("delete", id);
+    }
+  };
+
+  const handleCreateProduct = async () => {
+    if (window.confirm("Are you sure you want to create a new product?")) {
+      try {
+        await createProduct().unwrap();
+        refetch();
+      } catch (error) {
+        toast.error(error?.data?.message || error?.error);
+      }
+    }
+  };
 
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 pb-24 pt-16 sm:px-6 lg:max-w-7xl lg:px-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          All Orders
-        </h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            All Products
+          </h1>
+
+          <button
+            onClick={handleCreateProduct}
+            type="submit"
+            className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm transition-all hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+          >
+            {loadingCreate ? "Loading..." : "Create Product"}
+          </button>
+        </div>
 
         {isLoading ? (
           <Loader />
@@ -35,31 +70,25 @@ const OrderListScreen = () => {
                         scope="col"
                         className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                       >
-                        User
+                        Name
                       </th>
                       <th
                         scope="col"
                         className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                       >
-                        Date
+                        Price
                       </th>
                       <th
                         scope="col"
                         className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                       >
-                        Total
+                        Category
                       </th>
                       <th
                         scope="col"
                         className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                       >
-                        Paid
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
-                        Delivered
+                        Brand
                       </th>
                       <th
                         scope="col"
@@ -70,48 +99,29 @@ const OrderListScreen = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {orders.map((order) => (
-                      <tr key={order._id}>
+                    {products.map((product) => (
+                      <tr key={product._id}>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                          {order._id}
+                          {product._id}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {order.user.name}
+                          {product.name}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {new Date(order.createdAt).toUTCString()}
+                          <span className="font-bold">₹{product.price}</span>
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <span className="font-bold">₹{order.totalPrice}</span>
+                          {product.category}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {order.isPaid ? (
-                            <span className="font-semibold text-green-700">
-                              Paid
-                            </span>
-                          ) : (
-                            <span className="font-semibold text-red-700">
-                              Not Paid
-                            </span>
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {order.isDelivered ? (
-                            <span className="font-semibold text-green-700">
-                              Delivered
-                            </span>
-                          ) : (
-                            <span className="font-semibold text-red-700">
-                              Not Delivered
-                            </span>
-                          )}
+                          {product.brand}
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                           <Link
-                            to={`/order/${order._id}`}
+                            to={`/admin/${product._id}/edit`}
                             className="text-indigo-600 hover:text-indigo-900"
                           >
-                            Details
+                            Edit
                           </Link>
                         </td>
                       </tr>
@@ -127,4 +137,4 @@ const OrderListScreen = () => {
   );
 };
 
-export default OrderListScreen;
+export default ProductListScreen;

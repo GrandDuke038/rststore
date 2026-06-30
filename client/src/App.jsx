@@ -19,6 +19,7 @@ import OrderScreen from "@screens/Order";
 import ProfileScreen from "@screens/Profile";
 import OrderListScreen from "@screens/OrderList";
 import AdminRoute from "@components/AdminRoute";
+import ProductListScreen from "@screens/ProductList";
 
 const router = createBrowserRouter([
   {
@@ -45,8 +46,12 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <AdminRoute />,
-        children: [{ path: "admin/order-list", element: <OrderListScreen /> }],
+        children: [
+          { path: "admin/order-list", element: <OrderListScreen /> },
+          { path: "admin/product-list", element: <ProductListScreen /> },
+        ],
       },
+
       {
         path: "*",
         element: <ErrorScreen />,

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 import Alert from "@components/Alert";
-import Loader from "@components/Header/Loader";
+import Loader from "@components/Loader";
 import { setCredentials } from "@slices/authSlice";
 import { useGetMyOrdersQuery } from "@slices/orderApiSlice";
 import { useProfileMutation } from "@slices/userApiSlice";
