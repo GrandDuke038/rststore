@@ -1,6 +1,7 @@
 import express from "express";
 import colors from "colors";
 import morgan from "morgan";
+import path from "path";
 
 import dotenv from "dotenv";
 
@@ -9,6 +10,7 @@ import connectDB from "#config/db.config.js";
 import productRoutes from "#routes/product.routes.js";
 import { errorHandler } from "#middlewares/error.middleware.js";
 import userRoutes from "#routes/user.routes.js";
+import uploadRoutes from "#routes/upload.routes.js";
 import cookieParser from "cookie-parser";
 import orderRoutes from "#routes/order.routes.js";
 
@@ -29,10 +31,15 @@ app.get("/", (req, res) => {
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/uploads", uploadRoutes);
 
 app.use("/api/v1/config/paypal", (req, res) => {
   res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
 });
+
+//make the uploads folder static
+const __dirname = path.resolve();
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use(errorHandler);
 
