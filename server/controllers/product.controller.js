@@ -86,4 +86,27 @@ const updateProduct = async (req, res) => {
     throw new Error("Product not found");
   }
 };
-export { createProduct, getProducts, getProductsById, updateProduct };
+
+/**
+ * @desc		Delete product
+ * @route		DELETE /api/v1/products/:id
+ * @access	Private/Admin
+ */
+const deleteProduct = async (req, res) => {
+  const product = await ProductModel.findById(req.params.id);
+
+  if (product) {
+    await ProductModel.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Product deleted" });
+  } else {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+};
+export {
+  createProduct,
+  getProducts,
+  getProductsById,
+  updateProduct,
+  deleteProduct,
+};
