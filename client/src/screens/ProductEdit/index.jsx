@@ -7,6 +7,7 @@ import Loader from "@components/Loader";
 import {
   useGetProductDetailsQuery,
   useUpdateProductMutation,
+  useUploadProductImageMutation,
 } from "@slices/productApiSlice";
 
 const ProductEditScreen = () => {
@@ -31,6 +32,8 @@ const ProductEditScreen = () => {
 
   const [updateProduct, { isLoading: loadingUpdate }] =
     useUpdateProductMutation();
+
+  const [uploadProductImage] = useUploadProductImageMutation();
 
   useEffect(() => {
     if (product) {
@@ -64,7 +67,19 @@ const ProductEditScreen = () => {
       toast.error(result?.error);
     } else {
       toast.success("Product updated successfully");
-      navigate(`/admin/productlist`);
+      navigate(`/admin/product-list`);
+    }
+  };
+
+  const handleUploadFile = async (e) => {
+    const formData = new FormData();
+    formData.append("image", e.target.files[0]);
+    try {
+      const result = await uploadProductImage(formData).unwrap();
+      toast.success(result.message);
+      setImage(result.image);
+    } catch (error) {
+      toast.error(error?.data?.message || error?.error);
     }
   };
 
@@ -119,7 +134,28 @@ const ProductEditScreen = () => {
                       />
                     </div>
                   </div>
-
+                  <div className="sm:col-span-full">
+                    <label
+                      htmlFor="image"
+                      className="block text-sm font-medium leading-6 text-gray-900"
+                    >
+                      Image
+                    </label>
+                    <div className="mt-2">
+                      <input
+                        value={image}
+                        onChange={(e) => setImage(e.target.value)}
+                        id="image"
+                        type="text"
+                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                      <input
+                        onChange={handleUploadFile}
+                        type="file"
+                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                  </div>
                   <div className="sm:col-span-full">
                     <label
                       htmlFor="brand"
@@ -188,7 +224,6 @@ const ProductEditScreen = () => {
                         id="description"
                         rows={3}
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        defaultValue={""}
                       />
                     </div>
                     <p className="mt-3 text-sm leading-6 text-gray-600">
@@ -210,7 +245,6 @@ const ProductEditScreen = () => {
                         id="content"
                         rows={10}
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        defaultValue={""}
                       />
                     </div>
                     <p className="mt-3 text-sm leading-6 text-gray-600">
