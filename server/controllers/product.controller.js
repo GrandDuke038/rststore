@@ -103,10 +103,54 @@ const deleteProduct = async (req, res) => {
     throw new Error("Product not found");
   }
 };
+
+/**
+ * @desc Create a new review
+ * POST /api/v1/products/:id/reviews
+ * @access Private
+ */
+const createProductReview = async (req, res) => {
+  const { rating, comment } = req.body;
+
+  const product = await ProductModel.findById(req.params.id);
+
+  if (product) {
+    const alreadyReviewed = product.reviews.find(
+      (review) => review.user._id.toString() === req.user._id.toString(),
+    );
+
+    if (alreadyReviewed) {
+      res.status(400);
+      throw new Error("Product already reviewed");
+    }
+
+    const review = {
+      name: req.user.name,
+      rating: +rating,
+      comment,
+      user: req.user._id,
+    };
+
+    product.reviews.push(review);
+
+    product.numReviews = product.reviews.length;
+
+    product.rating =
+      product.reviews.reduce((acc, currVal) => currVal.rating + acc, 0) /
+      product.reviews.length;
+
+    await product.save();
+    res.status(201).json({ message: "Review added" });
+  } else {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+};
 export {
   createProduct,
   getProducts,
   getProductsById,
   updateProduct,
   deleteProduct,
+  createProductReview,
 };
