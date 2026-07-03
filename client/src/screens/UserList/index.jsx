@@ -1,16 +1,24 @@
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { useGetUsersQuery } from "@slices/userApiSlice";
+import { useDeleteUserMutation, useGetUsersQuery } from "@slices/userApiSlice";
 
 const UserListScreen = () => {
   const { data: users, error, isLoading } = useGetUsersQuery();
+  const [deleteUser, { isLoading: loadingDelete }] = useDeleteUserMutation();
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
-      console.log("Delete user", id);
+      try {
+        await deleteUser(id).unwrap();
+        toast.success("User deleted successfully");
+        refetch();
+      } catch (error) {
+        toast.error(error?.data?.message || error?.message);
+      }
     }
   };
 
@@ -97,7 +105,7 @@ const UserListScreen = () => {
                             type="button"
                             className="ml-3 rounded bg-red-50 px-2 py-1 text-sm font-semibold text-red-700 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50"
                           >
-                            {isLoading ? "Loading..." : "Delete"}
+                            {loadingDelete ? "Loading..." : "Delete"}
                           </button>
                         </td>
                       </tr>
