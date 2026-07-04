@@ -3,6 +3,7 @@ import ProductCard from "@components/ProductCard";
 import Loader from "@components/Loader";
 import Alert from "@components/Alert";
 import { useParams } from "react-router-dom";
+import Paginate from "@components/Paginate";
 
 const HomeScreen = () => {
   const { pageNumber } = useParams();
@@ -27,6 +28,7 @@ const HomeScreen = () => {
             ))}
           </div>
         )}
+        <Paginate pages={data?.pages} page={data?.page} />
       </div>
     </section>
   );
