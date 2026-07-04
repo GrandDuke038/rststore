@@ -25,9 +25,6 @@ app.use(cookieParser()); //Cookies parsing
 
 app.use(morgan("dev"));
 
-app.get("/", (req, res) => {
-  res.send("API is running.....");
-});
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/orders", orderRoutes);
@@ -40,6 +37,18 @@ app.use("/api/v1/config/paypal", (req, res) => {
 //make the uploads folder static
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/client/dist")));
+
+  app.use("/*splat", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send("API is running...");
+  });
+}
 
 app.use(errorHandler);
 
