@@ -7,8 +7,15 @@ import ProductModel from "#models/product.model.js";
  */
 
 const getProducts = async (req, res) => {
-  const products = await ProductModel.find({});
-  res.json(products);
+  const pageSize = 2;
+  const page = +req.query.pageNumber || 1;
+  const count = await ProductModel.countDocuments();
+
+  const products = await ProductModel.find({})
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+
+  res.json({ products, page, pages: Math.ceil(count / pageSize) });
 };
 
 /**
