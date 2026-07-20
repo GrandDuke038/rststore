@@ -1,4 +1,4 @@
-export default [
+const baseProducts = [
   {
     name: "Women's Summer Dress",
     price: 3999,
@@ -277,3 +277,44 @@ This shirt is praised for its fit and quality. It's a great choice for both busi
     `,
   },
 ];
+
+const additionalProducts = [
+  ["Classic Leather Tote", 7499, "/images/product-1.jpg", "Accessories", "Harbor & Hide", 14, 4.7, 48],
+  ["Linen Blend Blazer", 8999, "/images/product-2.jpg", "Women's Clothing", "Modern Form", 9, 4.5, 32],
+  ["Everyday Crew T-Shirt", 1999, "/images/product-3.jpg", "Men's Clothing", "Northline", 35, 4.4, 86],
+  ["Tailored Midi Skirt", 5299, "/images/product-4.jpg", "Women's Clothing", "Studio Edit", 16, 4.6, 41],
+  ["Canvas Weekend Sneakers", 6499, "/images/product-5.jpg", "Shoes", "Stride Co.", 22, 4.3, 57],
+  ["Ribbed Knit Cardigan", 5799, "/images/product-6.jpg", "Women's Clothing", "Soft Theory", 18, 4.8, 39],
+  ["Relaxed Chino Trousers", 4699, "/images/product-7.jpg", "Men's Clothing", "Field Standard", 27, 4.5, 64],
+  ["Trail Runner Shoes", 8299, "/images/product-8.jpg", "Shoes", "Peak Motion", 11, 4.7, 73],
+  ["Quilted Utility Jacket", 10999, "/images/product-9.jpg", "Women's Outerwear", "WarmWear", 8, 4.6, 28],
+  ["Oxford Button-Down Shirt", 4899, "/images/product-10.jpg", "Men's Clothing", "SharpDress", 25, 4.4, 66],
+  ["Structured Crossbody Bag", 6299, "/images/product-1.jpg", "Accessories", "Harbor & Hide", 19, 4.6, 52],
+  ["Pleated Summer Dress", 6899, "/images/product-2.jpg", "Women's Clothing", "Fashionista", 13, 4.8, 45],
+  ["Premium Pocket Polo", 3299, "/images/product-3.jpg", "Men's Clothing", "Northline", 31, 4.3, 58],
+  ["Cropped Denim Jacket", 7799, "/images/product-4.jpg", "Women's Outerwear", "DenimPro", 10, 4.5, 36],
+  ["Minimal Court Trainers", 7199, "/images/product-5.jpg", "Shoes", "Stride Co.", 17, 4.7, 69],
+  ["Merino Mock-Neck Sweater", 8499, "/images/product-6.jpg", "Women's Clothing", "Soft Theory", 12, 4.8, 31],
+  ["Straight Fit Utility Jeans", 6199, "/images/product-7.jpg", "Men's Clothing", "DenimPro", 20, 4.5, 77],
+  ["Performance Training Shoes", 8999, "/images/product-8.jpg", "Men's Shoes", "Peak Motion", 15, 4.6, 61],
+  ["Longline Wool-Blend Coat", 14999, "/images/product-9.jpg", "Women's Outerwear", "WarmWear", 6, 4.9, 24],
+  ["Textured Formal Shirt", 5199, "/images/product-10.jpg", "Men's Clothing", "SharpDress", 24, 4.4, 54],
+  ["Woven Belt Set", 2499, "/images/product-1.jpg", "Accessories", "Harbor & Hide", 38, 4.2, 43],
+  ["Satin Occasion Top", 4399, "/images/product-2.jpg", "Women's Clothing", "Studio Edit", 21, 4.6, 38],
+  ["Lightweight Overshirt", 5499, "/images/product-3.jpg", "Men's Clothing", "Field Standard", 23, 4.5, 49],
+  ["Pleated Wide-Leg Pants", 6599, "/images/product-4.jpg", "Women's Clothing", "Modern Form", 14, 4.7, 34],
+  ["Slip-On Travel Shoes", 5999, "/images/product-5.jpg", "Shoes", "Stride Co.", 26, 4.3, 56],
+].map(([name, price, image, category, brand, countInStock, rating, numReviews]) => ({
+  name,
+  price,
+  image,
+  category,
+  brand,
+  countInStock,
+  rating,
+  numReviews,
+  description: `A carefully selected ${name.toLowerCase()} designed for comfort, quality, and everyday style.`,
+  content: `### ${name}\n\nA versatile, well-crafted addition to your wardrobe.`,
+}));
+
+export default [...baseProducts, ...additionalProducts];

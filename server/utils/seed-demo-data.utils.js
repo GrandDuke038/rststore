@@ -5,24 +5,28 @@ import products from "#data/products.data.js";
 import users from "#data/users.data.js";
 
 export const seedDemoDataIfDatabaseEmpty = async () => {
-  const [userCount, productCount, orderCount] = await Promise.all([
-    UserModel.countDocuments(),
-    ProductModel.countDocuments(),
-    OrderModel.countDocuments(),
-  ]);
+  let adminUser = await UserModel.findOne({ isAdmin: true }).select("_id");
+  if (!adminUser) {
+    const createdUsers = await UserModel.insertMany(users);
+    adminUser = createdUsers[0];
+  }
 
-  if (userCount || productCount || orderCount) {
-    console.log("Demo seed skipped: database already contains data.");
+  const existingProducts = await ProductModel.find({
+    name: { $in: products.map(({ name }) => name) },
+  }).select("name");
+  const existingNames = new Set(existingProducts.map(({ name }) => name));
+  const missingProducts = products.filter(({ name }) => !existingNames.has(name));
+
+  if (!missingProducts.length) {
+    console.log("Demo seed skipped: catalog is already up to date.");
     return false;
   }
 
-  const createdUsers = await UserModel.insertMany(users);
-  const adminUser = createdUsers[0]._id;
   await ProductModel.insertMany(
-    products.map((product) => ({ ...product, user: adminUser })),
+    missingProducts.map((product) => ({ ...product, user: adminUser._id })),
   );
 
-  console.log("Demo data seeded.");
+  console.log(`${missingProducts.length} demo products seeded.`);
   return true;
 };
 
