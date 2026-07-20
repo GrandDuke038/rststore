@@ -2,7 +2,11 @@ import {
   CheckBadgeIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+import {
+  PayPalButtons,
+  PayPalScriptProvider,
+  usePayPalScriptReducer,
+} from "@paypal/react-paypal-js";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -18,7 +22,7 @@ import {
 } from "@slices/orderApiSlice";
 import { useEffect } from "react";
 
-const OrderScreen = () => {
+const OrderContent = () => {
   const { id: orderId } = useParams();
 
   const {
@@ -285,5 +289,11 @@ const OrderScreen = () => {
     </div>
   );
 };
+
+const OrderScreen = () => (
+  <PayPalScriptProvider deferLoading options={{ currency: "USD" }}>
+    <OrderContent />
+  </PayPalScriptProvider>
+);
 
 export default OrderScreen;

@@ -21,10 +21,11 @@ const ProfileScreen = () => {
     useProfileMutation();
 
   const {
-    data: orders,
+    data,
     isLoading: loadingOrders,
     error: errorOrders,
   } = useGetMyOrdersQuery();
+  const orders = data?.orders || [];
 
   useEffect(() => {
     if (userInfo) {

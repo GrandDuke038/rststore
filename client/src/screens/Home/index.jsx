@@ -2,17 +2,19 @@ import { useGetProductsQuery } from "@slices/productApiSlice";
 import ProductCard from "@components/ProductCard";
 import Loader from "@components/Loader";
 import Alert from "@components/Alert";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Paginate from "@components/Paginate";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 const HomeScreen = () => {
   const { pageNumber, keyword } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const { data, isLoading, isError, error } = useGetProductsQuery({
     pageNumber,
     keyword,
+    cursor: searchParams.get("cursor") || undefined,
   });
 
   return (
@@ -42,7 +44,12 @@ const HomeScreen = () => {
             </div>
           </>
         )}
-        <Paginate pages={data?.pages} page={data?.page} />
+        <Paginate
+          pages={data?.pages}
+          page={data?.page}
+          nextCursor={data?.nextCursor}
+          keyword={keyword}
+        />
       </div>
     </section>
   );

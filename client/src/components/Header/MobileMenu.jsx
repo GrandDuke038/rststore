@@ -1,4 +1,3 @@
-import React from "react";
 import MobileSearchBar from "./MobileSearchBar";
 import MobileMenuItem from "./MobileMenuItem";
 import {

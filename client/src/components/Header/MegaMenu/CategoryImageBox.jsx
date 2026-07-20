@@ -9,6 +9,8 @@ const CategoryImageBox = ({ url, imageUrl, label }) => {
         <img
           src={imageUrl}
           alt={label}
+          loading="lazy"
+          decoding="async"
           className="h-64 w-full rounded-xl transition-transform duration-500 hover:scale-105 object-cover object-top"
         />
       </Link>

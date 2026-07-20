@@ -7,56 +7,56 @@ const AllCategoriesMenuDisplay = () => {
         <div className="grid w-full grid-cols-12 gap-8">
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/men"
               imageUrl="/images/men-category.jpg"
               label="Men"
             />
           </div>
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/women"
               imageUrl="/images/women-category.jpg"
               label="Women"
             />
           </div>
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/kids"
               imageUrl="/images/kids-category.jpg"
               label="Kids"
             />
           </div>
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/collections"
               imageUrl="/images/collections-category.jpg"
               label="Collections"
             />
           </div>
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/watches"
               imageUrl="/images/watches-category.jpg"
               label="Watches"
             />
           </div>
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/shoes"
               imageUrl="/images/shoes-category.jpg"
               label="Shoes"
             />
           </div>
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/accessories"
               imageUrl="/images/accessories-category.jpg"
               label="Accessories"
             />
           </div>
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/sale"
               imageUrl="/images/sale-category.jpg"
               label="Sale"
             />

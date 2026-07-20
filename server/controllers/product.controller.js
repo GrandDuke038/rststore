@@ -1,4 +1,5 @@
 import ProductModel from "#models/product.model.js";
+import ReviewModel from "#models/review.model.js";
 /**
  * @desc		Fetch all products
  * @route		GET /api/v1/products
@@ -7,18 +8,35 @@ import ProductModel from "#models/product.model.js";
 
 const getProducts = async (req, res) => {
   const pageSize = 10;
-  const page = +req.query.pageNumber || 1;
-  const count = await ProductModel.countDocuments();
-
-  const keyword = req.query.keyword
-    ? { name: { $regex: req.query.keyword, $options: "i" } }
+  const page = Math.max(Number(req.query.pageNumber) || 1, 1);
+  const cursor = req.query.cursor;
+  const baseFilter = req.query.keyword
+    ? { $text: { $search: req.query.keyword } }
     : {};
+  const filter = { ...baseFilter };
 
-  const products = await ProductModel.find({ ...keyword })
-    .limit(pageSize)
-    .skip(pageSize * (page - 1));
+  if (cursor) filter._id = { $lt: cursor };
 
-  res.json({ products, page, pages: Math.ceil(count / pageSize) });
+  const projection = "name price image rating numReviews countInStock category brand";
+  const [products, count] = await Promise.all([
+    ProductModel.find(filter)
+      .select(projection)
+      .sort({ _id: -1 })
+      .skip(cursor ? 0 : (page - 1) * pageSize)
+      .limit(pageSize + 1)
+      .lean(),
+    ProductModel.countDocuments(baseFilter),
+  ]);
+
+  const hasMore = products.length > pageSize;
+  if (hasMore) products.pop();
+
+  res.json({
+    products,
+    page,
+    pages: Math.ceil(count / pageSize),
+    nextCursor: hasMore ? products.at(-1)._id : null,
+  });
 };
 
 /**
@@ -27,7 +45,7 @@ const getProducts = async (req, res) => {
  * @access	Public
  */
 const getProductsById = async (req, res) => {
-  const product = await ProductModel.findById(req.params.id);
+  const product = await ProductModel.findById(req.params.id).lean();
   if (product) {
     res.json(product);
   } else {
@@ -122,39 +140,37 @@ const deleteProduct = async (req, res) => {
 const createProductReview = async (req, res) => {
   const { rating, comment } = req.body;
 
-  const product = await ProductModel.findById(req.params.id);
-
-  if (product) {
-    const alreadyReviewed = product.reviews.find(
-      (review) => review.user._id.toString() === req.user._id.toString(),
-    );
-
-    if (alreadyReviewed) {
-      res.status(400);
-      throw new Error("Product already reviewed");
-    }
-
-    const review = {
-      name: req.user.name,
-      rating: +rating,
-      comment,
-      user: req.user._id,
-    };
-
-    product.reviews.push(review);
-
-    product.numReviews = product.reviews.length;
-
-    product.rating =
-      product.reviews.reduce((acc, currVal) => currVal.rating + acc, 0) /
-      product.reviews.length;
-
-    await product.save();
-    res.status(201).json({ message: "Review added" });
-  } else {
+  const product = await ProductModel.exists({ _id: req.params.id });
+  if (!product) {
     res.status(404);
     throw new Error("Product not found");
   }
+
+  try {
+    await ReviewModel.create({
+      product: req.params.id,
+      user: req.user._id,
+      name: req.user.name,
+      rating: Number(rating),
+      comment,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      res.status(400);
+      throw new Error("Product already reviewed");
+    }
+    throw error;
+  }
+
+  const [summary] = await ReviewModel.aggregate([
+    { $match: { product: product._id } },
+    { $group: { _id: "$product", rating: { $avg: "$rating" }, numReviews: { $sum: 1 } } },
+  ]);
+  await ProductModel.updateOne(
+    { _id: product._id },
+    { $set: { rating: summary.rating, numReviews: summary.numReviews } },
+  );
+  res.status(201).json({ message: "Review added" });
 };
 export {
   createProduct,

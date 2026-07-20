@@ -3,9 +3,12 @@ import { Link } from "react-router-dom";
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
 import { useGetOrdersQuery } from "@slices/orderApiSlice";
+import { useState } from "react";
 
 const OrderListScreen = () => {
-  const { data: orders, isLoading, error } = useGetOrdersQuery();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetOrdersQuery(page);
+  const orders = data?.orders || [];
 
   return (
     <div className="bg-white">
@@ -120,6 +123,12 @@ const OrderListScreen = () => {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+        {data?.pages > 1 && (
+          <div className="mt-6 flex justify-end gap-3">
+            <button disabled={page === 1} onClick={() => setPage(page - 1)} type="button">Previous</button>
+            <button disabled={page === data.pages} onClick={() => setPage(page + 1)} type="button">Next</button>
           </div>
         )}
       </div>

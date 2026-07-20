@@ -127,9 +127,19 @@ const updateUserProfile = async (req, res) => {
  */
 
 const getUsers = async (req, res) => {
-  const users = await UserModel.find({});
+  const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 25, 1), 100);
+  const page = Math.max(Number(req.query.pageNumber) || 1, 1);
+  const [users, count] = await Promise.all([
+    UserModel.find({})
+      .select("name email isAdmin createdAt")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .lean(),
+    UserModel.countDocuments(),
+  ]);
 
-  res.status(200).json(users);
+  res.status(200).json({ users, page, pages: Math.ceil(count / pageSize) });
 };
 /**
  * @desc  Get user by ID

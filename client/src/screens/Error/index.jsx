@@ -1,13 +1,8 @@
 import { Link } from "react-router-dom";
 
-import Header from "@components/Header";
-import Footer from "@components/Footer";
-
 const ErrorScreen = () => {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <div className="grid grow place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
+    <div className="grid min-h-[calc(100vh-14rem)] place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
         <div className="text-center">
           <p className="text-base font-semibold text-indigo-600">404</p>
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
@@ -23,8 +18,6 @@ const ErrorScreen = () => {
             Go back home
           </Link>
         </div>
-      </div>
-      <Footer />
     </div>
   );
 };

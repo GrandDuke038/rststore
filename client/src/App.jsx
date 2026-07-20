@@ -1,29 +1,31 @@
-import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { lazy, Suspense } from "react";
 import Layout from "@components/Layout";
-import HomeScreen from "@screens/Home";
-import ErrorScreen from "@screens/Error";
-import ProductDetailsScreen from "@screens/ProductDetails";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store";
-import CartScreen from "@screens/Cart";
-import LoginScreen from "@screens/Login";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ShippingScreen from "@screens/Shipping";
 import PrivateRoute from "@components/PrivateRoute";
-import PaymentScreen from "@screens/Payment";
-import PlaceOrderScreen from "@screens/PlaceOrder";
-import OrderScreen from "@screens/Order";
-import ProfileScreen from "@screens/Profile";
-import OrderListScreen from "@screens/OrderList";
 import AdminRoute from "@components/AdminRoute";
-import ProductListScreen from "@screens/ProductList";
-import ProductEditScreen from "@screens/ProductEdit";
-import UserListScreen from "@screens/UserList";
-import UserEditScreen from "@screens/UserEdit";
-import RegisterScreen from "@screens/Register";
+import Loader from "@components/Loader";
+
+const HomeScreen = lazy(() => import("@screens/Home"));
+const ErrorScreen = lazy(() => import("@screens/Error"));
+const ProductDetailsScreen = lazy(() => import("@screens/ProductDetails"));
+const CartScreen = lazy(() => import("@screens/Cart"));
+const LoginScreen = lazy(() => import("@screens/Login"));
+const ShippingScreen = lazy(() => import("@screens/Shipping"));
+const PaymentScreen = lazy(() => import("@screens/Payment"));
+const PlaceOrderScreen = lazy(() => import("@screens/PlaceOrder"));
+const OrderScreen = lazy(() => import("@screens/Order"));
+const ProfileScreen = lazy(() => import("@screens/Profile"));
+const OrderListScreen = lazy(() => import("@screens/OrderList"));
+const ProductListScreen = lazy(() => import("@screens/ProductList"));
+const ProductEditScreen = lazy(() => import("@screens/ProductEdit"));
+const UserListScreen = lazy(() => import("@screens/UserList"));
+const UserEditScreen = lazy(() => import("@screens/UserEdit"));
+const RegisterScreen = lazy(() => import("@screens/Register"));
 
 const router = createBrowserRouter([
   {
@@ -35,6 +37,7 @@ const router = createBrowserRouter([
         index: true,
         element: <HomeScreen />,
       },
+      { path: "/categories", element: <HomeScreen /> },
       {
         path: "/page/:pageNumber",
         element: <HomeScreen />,
@@ -83,14 +86,14 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <Provider store={store}>
-      <PayPalScriptProvider deferLoading={true} options={{ currency: "USD" }}>
+      <Suspense fallback={<Loader />}>
         <RouterProvider router={router} />
+      </Suspense>
         <ToastContainer
           position="bottom-right"
           autoClose={5000}
           hideProgressBar
         />
-      </PayPalScriptProvider>
     </Provider>
   );
 };

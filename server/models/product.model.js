@@ -1,31 +1,5 @@
 import mongoose from "mongoose";
 
-const reviewSchema = mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: [true, "User ID is required"],
-      ref: "UserModel",
-    },
-    name: {
-      type: String,
-      required: [true, "Product name is required"],
-    },
-    rating: {
-      type: Number,
-      required: [true, "Product rating is required"],
-      default: 0,
-    },
-    comment: {
-      type: String,
-      required: [true, "Review comment is required"],
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
 const productSchema = mongoose.Schema(
   {
     user: {
@@ -67,13 +41,16 @@ const productSchema = mongoose.Schema(
       type: String,
       required: [true, "Product content is required"],
     },
-    reviews: [reviewSchema],
   },
   {
     timestamps: true,
     collection: "products",
   },
 );
+
+// Supports the public catalogue search without collection scans.
+productSchema.index({ name: "text", brand: "text", category: "text" });
+productSchema.index({ createdAt: -1, _id: -1 });
 
 const ProductModel = mongoose.model("ProductModel", productSchema);
 

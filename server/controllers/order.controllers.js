@@ -46,7 +46,19 @@ const createOrder = async (req, res) => {
  * @access	Private
  */
 const getMyOrders = async (req, res) => {
-  const orders = await OrderModel.find({ user: req.user._id });
+  const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 10, 1), 50);
+  const page = Math.max(Number(req.query.pageNumber) || 1, 1);
+  const filter = { user: req.user._id };
+  const [orders, count] = await Promise.all([
+    OrderModel.find(filter)
+      .select("orderItems shippingAddress totalPrice isPaid isDelivered deliveredAt createdAt")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .lean(),
+    OrderModel.countDocuments(filter),
+  ]);
+  res.status(200).json({ orders, page, pages: Math.ceil(count / pageSize) });
 };
 
 /**
@@ -119,8 +131,19 @@ const updateOrderToDelivered = async (req, res) => {
  * @access	Private/Admin
  */
 const getOrders = async (req, res) => {
-  const orders = await OrderModel.find({}).populate("user", "name email");
-  res.status(200).json(orders);
+  const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 25, 1), 100);
+  const page = Math.max(Number(req.query.pageNumber) || 1, 1);
+  const [orders, count] = await Promise.all([
+    OrderModel.find({})
+      .select("user totalPrice isPaid isDelivered createdAt")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .populate("user", "name email")
+      .lean(),
+    OrderModel.countDocuments(),
+  ]);
+  res.status(200).json({ orders, page, pages: Math.ceil(count / pageSize) });
 };
 
 export {

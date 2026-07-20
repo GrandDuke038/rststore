@@ -11,14 +11,14 @@ const MenMenuDisplay = () => {
               Categories
             </h6>
             <ul className="flex flex-col gap-y-3">
-              <LinkItem url="#" label="Men's Fashion" />
-              <LinkItem url="#" label="New Arrivals" />
-              <LinkItem url="#" label="Clothing" />
-              <LinkItem url="#" label="Footwear" />
-              <LinkItem url="#" label="Watches" />
-              <LinkItem url="#" label="Jewellery" />
-              <LinkItem url="#" label="Backpacks" />
-              <LinkItem url="#" label="Luggage" />
+              <LinkItem url="/search/men" label="Men's Fashion" />
+              <LinkItem url="/search/new" label="New Arrivals" />
+              <LinkItem url="/search/clothing" label="Clothing" />
+              <LinkItem url="/search/footwear" label="Footwear" />
+              <LinkItem url="/search/watches" label="Watches" />
+              <LinkItem url="/search/jewellery" label="Jewellery" />
+              <LinkItem url="/search/backpacks" label="Backpacks" />
+              <LinkItem url="/search/luggage" label="Luggage" />
             </ul>
           </div>
 
@@ -27,20 +27,20 @@ const MenMenuDisplay = () => {
               Top Brands
             </h6>
             <ul className="flex flex-col gap-y-3">
-              <LinkItem url="#" label="Nike" />
-              <LinkItem url="#" label="Tommy Hilfiger" />
-              <LinkItem url="#" label="Skechers" />
-              <LinkItem url="#" label="Converse" />
-              <LinkItem url="#" label="Puma" />
-              <LinkItem url="#" label="Adidas" />
-              <LinkItem url="#" label="Under Armour" />
-              <LinkItem url="#" label="Jack & Jones" />
+              <LinkItem url="/search/nike" label="Nike" />
+              <LinkItem url="/search/tommy-hilfiger" label="Tommy Hilfiger" />
+              <LinkItem url="/search/skechers" label="Skechers" />
+              <LinkItem url="/search/converse" label="Converse" />
+              <LinkItem url="/search/puma" label="Puma" />
+              <LinkItem url="/search/adidas" label="Adidas" />
+              <LinkItem url="/search/under-armour" label="Under Armour" />
+              <LinkItem url="/search/jack-jones" label="Jack & Jones" />
             </ul>
           </div>
 
           <div className="col-span-5">
             <CategoryImageBox
-              url="#"
+              url="/search/watches"
               imageUrl="/images/men-watches-category.jpg"
               label="Luxury Watches"
             />
@@ -48,7 +48,7 @@ const MenMenuDisplay = () => {
 
           <div className="col-span-3">
             <CategoryImageBox
-              url="#"
+              url="/search/suits"
               imageUrl="/images/mens-suit-category.jpg"
               label="Men's Suits"
             />

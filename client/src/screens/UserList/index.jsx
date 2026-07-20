@@ -1,13 +1,16 @@
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useState } from "react";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
 import { useDeleteUserMutation, useGetUsersQuery } from "@slices/userApiSlice";
 
 const UserListScreen = () => {
-  const { data: users, error, isLoading } = useGetUsersQuery();
+  const [page, setPage] = useState(1);
+  const { data, error, isLoading, refetch } = useGetUsersQuery(page);
+  const users = data?.users || [];
   const [deleteUser, { isLoading: loadingDelete }] = useDeleteUserMutation();
 
   const handleDelete = async (id) => {
@@ -114,6 +117,12 @@ const UserListScreen = () => {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+        {data?.pages > 1 && (
+          <div className="mt-6 flex justify-end gap-3">
+            <button disabled={page === 1} onClick={() => setPage(page - 1)} type="button">Previous</button>
+            <button disabled={page === data.pages} onClick={() => setPage(page + 1)} type="button">Next</button>
           </div>
         )}
       </div>
