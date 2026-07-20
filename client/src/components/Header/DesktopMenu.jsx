@@ -4,12 +4,13 @@ import {
   TagIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import MenuItem from "./MenuItem";
-import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { useLogoutMutation } from "@slices/userApiSlice";
+
 import { logout } from "@slices/authSlice";
+import { useLogoutMutation } from "@slices/userApiSlice";
+import MenuItem from "./MenuItem";
 
 const DesktopMenu = () => {
   const dispatch = useDispatch();
@@ -17,11 +18,9 @@ const DesktopMenu = () => {
 
   const { cartItems } = useSelector((state) => state.cart);
   const { userInfo } = useSelector((state) => state.auth);
-  console.log(userInfo);
 
   const [isOpen, setIsOpen] = useState(false);
   const [adminIsOpen, setAdminIsOpen] = useState(false);
-
   const menuRef = useRef(null);
   const adminMenuRef = useRef(null);
 
@@ -47,7 +46,9 @@ const DesktopMenu = () => {
         setAdminIsOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -67,7 +68,7 @@ const DesktopMenu = () => {
       {userInfo ? (
         <div className="relative z-50" ref={menuRef}>
           <button
-            className="focus:outline-offset-3 rounded-full bg-gray-200 p-2 focus:outline "
+            className="focus:outline-offset-3 rounded-full bg-gray-200 p-2 focus:outline focus:outline-2"
             onClick={() => setIsOpen(!isOpen)}
           >
             <UserIcon className="h-5 w-5" />
@@ -102,6 +103,7 @@ const DesktopMenu = () => {
       ) : (
         <MenuItem url="/login" label="Login" icon={UserIcon} />
       )}
+
       {userInfo && userInfo.isAdmin && (
         <div className="relative z-50" ref={adminMenuRef}>
           <button
@@ -138,4 +140,5 @@ const DesktopMenu = () => {
     </nav>
   );
 };
+
 export default DesktopMenu;

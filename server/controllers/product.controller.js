@@ -1,13 +1,12 @@
 import ProductModel from "#models/product.model.js";
 /**
-
  * @desc		Fetch all products
  * @route		GET /api/v1/products
  * @access	Public
  */
 
 const getProducts = async (req, res) => {
-  const pageSize = 2;
+  const pageSize = 10;
   const page = +req.query.pageNumber || 1;
   const count = await ProductModel.countDocuments();
 

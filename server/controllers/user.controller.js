@@ -10,7 +10,7 @@ import generateToken from "#utils/generate-token.utils.js";
 const authUser = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email });
+  const user = await UserModel.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
     generateToken(res, user._id);
@@ -36,14 +36,14 @@ const authUser = async (req, res) => {
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
-  const userExists = await userModel.findOne({ email });
+  const userExists = await UserModel.findOne({ email });
 
   if (userExists) {
     res.status(400);
     throw new Error("User already exists");
   }
 
-  const user = await userModel.create({ name, email, password });
+  const user = await UserModel.create({ name, email, password });
   if (user) {
     generateToken(res, user._id);
     res.status(201).json({
@@ -78,7 +78,7 @@ const logoutUser = async (req, res) => {
  */
 
 const getUserProfile = async (req, res) => {
-  const user = await userModel.findById(req.user._id);
+  const user = await UserModel.findById(req.user._id);
   if (user) {
     res.status(200).json({
       _id: user._id,
@@ -93,12 +93,12 @@ const getUserProfile = async (req, res) => {
 };
 /**
  * @desc  Update user profile
- * @route GET/api/users/profile
+ * @route PUT/api/users/profile
  * @access Private
  */
 
 const updateUserProfile = async (req, res) => {
-  const user = await userModel.findById(req.user._id);
+  const user = await UserModel.findById(req.user._id);
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;

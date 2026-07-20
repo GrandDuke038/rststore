@@ -86,7 +86,7 @@ const ProductDetailsScreen = () => {
               </div>
               {/* Quantity selector */}
               <QuantitySelector
-                Quantity={qty}
+                quantity={qty}
                 setQuantity={setQty}
                 countInStock={product.countInStock}
               />

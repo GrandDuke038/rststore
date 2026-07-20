@@ -18,7 +18,7 @@ const CartScreen = () => {
     navigate("/cart");
   };
   const handleRemoveFromCart = (productId) => {
-    dispatch(removeFromCart({ productId }));
+    dispatch(removeFromCart(productId));
   };
   const handCheckout = () => {
     navigate("/login?redirect=/shipping");

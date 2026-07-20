@@ -23,6 +23,7 @@ import ProductListScreen from "@screens/ProductList";
 import ProductEditScreen from "@screens/ProductEdit";
 import UserListScreen from "@screens/UserList";
 import UserEditScreen from "@screens/UserEdit";
+import RegisterScreen from "@screens/Register";
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
       },
       { path: "/product/:id", element: <ProductDetailsScreen /> },
       { path: "/cart", element: <CartScreen /> },
+      { path: "/register", element: <RegisterScreen /> },
       { path: "/login", element: <LoginScreen /> },
       {
         path: "",
