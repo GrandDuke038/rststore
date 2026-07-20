@@ -2,30 +2,16 @@ import dotenv from "dotenv";
 import colors from "colors";
 
 import connectDB from "#config/db.config.js";
-import products from "#data/products.data.js";
-import users from "#data/users.data.js";
 import OrderModel from "#models/order.model.js";
 import ProductModel from "#models/product.model.js";
 import UserModel from "#models/user.model.js";
+import { resetAndSeedDemoData } from "#utils/seed-demo-data.utils.js";
 
 dotenv.config();
 
-connectDB();
-
 const importData = async () => {
   try {
-    await OrderModel.deleteMany();
-    await ProductModel.deleteMany();
-    await UserModel.deleteMany();
-
-    const createdUsers = await UserModel.insertMany(users);
-    const adminUser = createdUsers[0]._id;
-
-    const sampleProducts = products.map((product) => {
-      return { ...product, user: adminUser };
-    });
-
-    await ProductModel.insertMany(sampleProducts);
+    await resetAndSeedDemoData();
 
     console.log("Data imported".green.bold.inverse);
 
@@ -49,8 +35,6 @@ const destroyData = async () => {
   }
 };
 
-if (process.argv[2] === "-d") {
-  destroyData();
-} else {
-  importData();
-}
+await connectDB();
+if (process.argv[2] === "-d") await destroyData();
+else await importData();

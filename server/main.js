@@ -13,11 +13,11 @@ import userRoutes from "#routes/user.routes.js";
 import uploadRoutes from "#routes/upload.routes.js";
 import cookieParser from "cookie-parser";
 import orderRoutes from "#routes/order.routes.js";
+import { seedDemoDataIfDatabaseEmpty } from "#utils/seed-demo-data.utils.js";
 
 dotenv.config();
 
 const port = process.env.PORT;
-connectDB();
 
 const app = express();
 app.use(express.json()); //request body parsing
@@ -59,9 +59,19 @@ if (process.env.NODE_ENV === "production") {
 
 app.use(errorHandler);
 
-app.listen(port, () => {
-  console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port: ${port}`.yellow
-      .bold,
-  );
-});
+const startServer = async () => {
+  await connectDB();
+
+  if (process.env.SEED_DEMO_DATA === "true") {
+    await seedDemoDataIfDatabaseEmpty();
+  }
+
+  app.listen(port, () => {
+    console.log(
+      `Server running in ${process.env.NODE_ENV} mode on port: ${port}`.yellow
+        .bold,
+    );
+  });
+};
+
+startServer();
