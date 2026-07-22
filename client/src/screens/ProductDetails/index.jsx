@@ -10,13 +10,23 @@ import Alert from "@components/Alert";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@slices/cartSlice";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import {
+  useCreateProductReviewMutation,
+  useGetProductReviewsQuery,
+} from "@slices/productApiSlice";
+import { toast } from "react-toastify";
+import { IoStar, IoStarOutline } from "react-icons/io5";
 
 const ProductDetailsScreen = () => {
   const { id: productId } = useParams();
 
   const [qty, setQty] = useState(1);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { userInfo } = useSelector((state) => state.auth);
 
   const {
     data: product,
@@ -24,10 +34,39 @@ const ProductDetailsScreen = () => {
     isError,
     error,
   } = useGetProductDetailsQuery(productId);
+  const {
+    data: reviews = [],
+    isLoading: reviewsLoading,
+    error: reviewsError,
+  } = useGetProductReviewsQuery(productId);
+  const [createProductReview, { isLoading: isSubmittingReview }] =
+    useCreateProductReviewMutation();
 
   const handleAddToCart = () => {
     dispatch(addToCart({ ...product, qty }));
     navigate("/cart");
+  };
+
+  const handleReviewSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!rating) {
+      toast.error("Please select a star rating");
+      return;
+    }
+
+    try {
+      await createProductReview({ productId, rating, comment }).unwrap();
+      setRating(0);
+      setComment("");
+      toast.success("Thank you for your review");
+    } catch (reviewError) {
+      toast.error(
+        reviewError?.data?.message ||
+          reviewError?.error ||
+          "Unable to submit your review",
+      );
+    }
   };
 
   return (
@@ -54,6 +93,110 @@ const ProductDetailsScreen = () => {
                 alt={product.name}
                 className="rounded-lg"
               />
+
+              <section className="mt-12 max-w-2xl" aria-labelledby="reviews-heading">
+                <h2
+                  id="reviews-heading"
+                  className="text-lg font-semibold text-slate-900"
+                >
+                  Customer reviews
+                </h2>
+
+                <div className="mt-5 space-y-5">
+                  {reviewsLoading ? (
+                    <Loader />
+                  ) : reviewsError ? (
+                    <Alert type="error">
+                      {reviewsError?.data?.message || reviewsError?.error}
+                    </Alert>
+                  ) : reviews.length ? (
+                    reviews.map((review) => (
+                      <article
+                        key={review._id}
+                        className="border-b border-slate-200 pb-5"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <p className="font-medium text-slate-900">
+                              {review.name}
+                            </p>
+                            <Rating value={review.rating} />
+                          </div>
+                          <time
+                            className="text-sm text-slate-500"
+                            dateTime={review.createdAt}
+                          >
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </time>
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                          {review.comment}
+                        </p>
+                      </article>
+                    ))
+                  ) : (
+                    <p className="text-sm text-slate-500">No reviews yet.</p>
+                  )}
+                </div>
+
+                <div className="mt-10 border-t border-slate-200 pt-8">
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Write a review
+                  </h3>
+                  {userInfo ? (
+                    <form className="mt-5" onSubmit={handleReviewSubmit}>
+                      <fieldset>
+                        <legend className="text-sm font-medium text-slate-700">
+                          Rating
+                        </legend>
+                        <div className="mt-2 flex gap-1" role="radiogroup">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              aria-label={`${star} star${star === 1 ? "" : "s"}`}
+                              aria-pressed={rating === star}
+                              onClick={() => setRating(star)}
+                              className="cursor-pointer rounded p-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                              {star <= rating ? (
+                                <IoStar className="h-6 w-6 text-amber-400" />
+                              ) : (
+                                <IoStarOutline className="h-6 w-6 text-slate-300" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </fieldset>
+                      <label
+                        htmlFor="review-comment"
+                        className="mt-5 block text-sm font-medium text-slate-700"
+                      >
+                        Comment
+                      </label>
+                      <textarea
+                        id="review-comment"
+                        value={comment}
+                        onChange={(event) => setComment(event.target.value)}
+                        required
+                        rows={4}
+                        className="mt-2 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                      <button
+                        type="submit"
+                        disabled={isSubmittingReview}
+                        className="mt-5 rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isSubmittingReview ? "Submitting..." : "Submit review"}
+                      </button>
+                    </form>
+                  ) : (
+                    <p className="mt-3 text-sm text-slate-600">
+                      Please <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">sign in</Link> to write a review.
+                    </p>
+                  )}
+                </div>
+              </section>
             </div>
             {/* product name and other details */}
             <div className="lg:col-span-5">

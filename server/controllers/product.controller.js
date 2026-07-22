@@ -172,10 +172,25 @@ const createProductReview = async (req, res) => {
   );
   res.status(201).json({ message: "Review added" });
 };
+
+/**
+ * @desc    Fetch reviews for a product
+ * @route   GET /api/v1/products/:id/reviews
+ * @access  Public
+ */
+const getProductReviews = async (req, res) => {
+  const reviews = await ReviewModel.find({ product: req.params.id })
+    .select("name rating comment createdAt")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.json(reviews);
+};
 export {
   createProduct,
   getProducts,
   getProductsById,
+  getProductReviews,
   updateProduct,
   deleteProduct,
   createProductReview,
