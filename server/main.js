@@ -13,6 +13,7 @@ import userRoutes from "#routes/user.routes.js";
 import uploadRoutes from "#routes/upload.routes.js";
 import cookieParser from "cookie-parser";
 import orderRoutes from "#routes/order.routes.js";
+import supportRoutes from "#routes/support.routes.js";
 import { seedDemoDataIfDatabaseEmpty } from "#utils/seed-demo-data.utils.js";
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use(morgan("dev"));
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/support", supportRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
 
 app.use("/api/v1/config/paypal", (req, res) => {

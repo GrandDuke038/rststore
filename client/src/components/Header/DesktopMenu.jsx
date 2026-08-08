@@ -91,6 +91,12 @@ const DesktopMenu = () => {
               >
                 Profile
               </Link>
+              <Link
+                to="/support"
+                className="block px-4 py-2 text-sm text-gray-700 transition-all hover:bg-gray-200 focus:bg-gray-300"
+              >
+                Support
+              </Link>
               <button
                 onClick={handleLogout}
                 className="block w-full px-4 py-2 text-left text-sm text-gray-700 transition-all hover:bg-gray-200 focus:bg-gray-300"
@@ -132,6 +138,12 @@ const DesktopMenu = () => {
                 className="block px-4 py-2 text-sm text-gray-700 transition-all hover:bg-gray-200 focus:bg-gray-300"
               >
                 All Products
+              </Link>
+              <Link
+                to="/admin/support"
+                className="block px-4 py-2 text-sm text-gray-700 transition-all hover:bg-gray-200 focus:bg-gray-300"
+              >
+                Support Tickets
               </Link>
             </nav>
           )}

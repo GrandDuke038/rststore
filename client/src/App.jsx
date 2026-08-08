@@ -26,6 +26,9 @@ const ProductEditScreen = lazy(() => import("@screens/ProductEdit"));
 const UserListScreen = lazy(() => import("@screens/UserList"));
 const UserEditScreen = lazy(() => import("@screens/UserEdit"));
 const RegisterScreen = lazy(() => import("@screens/Register"));
+const SupportScreen = lazy(() => import("@screens/Support"));
+const SupportTicketScreen = lazy(() => import("@screens/SupportTicket"));
+const AdminSupportScreen = lazy(() => import("@screens/AdminSupport"));
 
 const router = createBrowserRouter([
   {
@@ -65,6 +68,14 @@ const router = createBrowserRouter([
       { path: "/profile", element: <ProfileScreen /> },
       {
         path: "",
+        element: <PrivateRoute />,
+        children: [
+          { path: "/support", element: <SupportScreen /> },
+          { path: "/support/:id", element: <SupportTicketScreen /> },
+        ],
+      },
+      {
+        path: "",
         element: <AdminRoute />,
         children: [
           { path: "admin/order-list", element: <OrderListScreen /> },
@@ -72,6 +83,8 @@ const router = createBrowserRouter([
           { path: "admin/product/:id/edit", element: <ProductEditScreen /> },
           { path: "admin/user-list", element: <UserListScreen /> },
           { path: "admin/user/:id/edit", element: <UserEditScreen /> },
+          { path: "admin/support", element: <AdminSupportScreen /> },
+          { path: "admin/support/:id", element: <SupportTicketScreen /> },
         ],
       },
 
@@ -89,11 +102,11 @@ const App = () => {
       <Suspense fallback={<Loader />}>
         <RouterProvider router={router} />
       </Suspense>
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar
-        />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar
+      />
     </Provider>
   );
 };

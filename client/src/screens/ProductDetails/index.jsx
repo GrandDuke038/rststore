@@ -120,6 +120,11 @@ const ProductDetailsScreen = () => {
                             <p className="font-medium text-slate-900">
                               {review.name}
                             </p>
+                            {review.isDemo && (
+                              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+                                Sample review
+                              </span>
+                            )}
                             <Rating value={review.rating} />
                           </div>
                           <time

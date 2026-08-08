@@ -180,7 +180,7 @@ const createProductReview = async (req, res) => {
  */
 const getProductReviews = async (req, res) => {
   const reviews = await ReviewModel.find({ product: req.params.id })
-    .select("name rating comment createdAt")
+    .select("name rating comment createdAt isDemo")
     .sort({ createdAt: -1 })
     .lean();
 
