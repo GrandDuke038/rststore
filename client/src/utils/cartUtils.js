@@ -4,7 +4,7 @@ export const updateCart = (state) => {
     .reduce((acc, currVal) => acc + currVal.price * currVal.qty, 0)
     .toFixed(2);
   //calculate shipping price
-  state.shippingPrice = (+state.itemPrice > 5000 ? 0 : 2000).toFixed(2);
+  state.shippingPrice = (+state.itemsPrice > 5000 ? 0 : 2000).toFixed(2);
 
   //calculate tax price
   state.taxPrice = (0.18 * state.itemsPrice).toFixed(2);

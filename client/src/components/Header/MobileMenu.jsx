@@ -21,7 +21,9 @@ const MobileMenu = () => {
           label={userInfo ? "profile" : "login"}
           icon={UserIcon}
         />
-        {userInfo && <MobileMenuItem url="/support" label="support" icon={UserIcon} />}
+        {userInfo && (
+          <MobileMenuItem url="/support" label="support" icon={UserIcon} />
+        )}
         <MobileMenuItem url="/cart" label="cart" icon={ShoppingCartIcon} />
       </div>
     </nav>

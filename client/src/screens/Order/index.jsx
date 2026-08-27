@@ -75,7 +75,7 @@ const OrderContent = () => {
         refetch();
         toast.success("Order paid successfully");
       } catch (error) {
-        error?.data?.message || error?.message;
+        toast.error(error?.data?.message || error?.message);
       }
     });
   };
@@ -202,9 +202,9 @@ const OrderContent = () => {
                     </div>
                     <p className="flex-none text-right font-medium text-slate-900">
                       <span className="font-normal text-slate-900">
-                        {product.qty} x ₹{product.price}{" "}
+                        {product.qty} x ${product.price}{" "}
                       </span>
-                      = ₹{product.price * product.qty}
+                      = ${product.price * product.qty}
                     </p>
                   </li>
                 ))}
@@ -222,27 +222,27 @@ const OrderContent = () => {
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Items</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ₹{order.itemsPrice}
+                    ${order.itemsPrice}
                   </dd>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Shipping</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ₹{order.shippingPrice}
+                    ${order.shippingPrice}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Taxes</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ₹{order.taxPrice}
+                    ${order.taxPrice}
                   </dd>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Total</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ₹{order.totalPrice}
+                    ${order.totalPrice}
                   </dd>
                 </div>
               </dl>
@@ -256,9 +256,9 @@ const OrderContent = () => {
                     ) : (
                       <div>
                         <PayPalButtons
-                          createOrder={createOrder}
-                          onApprove={onApprove}
-                          onError={onError}
+                          createOrder={createOrder} //Callback function//
+                          onApprove={onApprove} //Callback function//
+                          onError={onError} //Callback function//
                         />
                       </div>
                     )}

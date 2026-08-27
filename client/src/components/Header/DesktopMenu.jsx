@@ -18,6 +18,7 @@ const DesktopMenu = () => {
 
   const { cartItems } = useSelector((state) => state.cart);
   const { userInfo } = useSelector((state) => state.auth);
+  const isAdmin = userInfo?.isAdmin === true;
 
   const [isOpen, setIsOpen] = useState(false);
   const [adminIsOpen, setAdminIsOpen] = useState(false);
@@ -110,7 +111,7 @@ const DesktopMenu = () => {
         <MenuItem url="/login" label="Login" icon={UserIcon} />
       )}
 
-      {userInfo && userInfo.isAdmin && (
+      {isAdmin && (
         <div className="relative z-50" ref={adminMenuRef}>
           <button
             className="focus:outline-offset-3 rounded-full bg-gray-200 p-2 focus:outline focus:outline-2"

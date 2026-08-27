@@ -71,8 +71,13 @@ const getOrderById = async (req, res) => {
     "user",
     "name email",
   );
-  if (order) {
+  const isOwner = order?.user?._id.toString() === req.user._id.toString();
+
+  if (order && (isOwner || req.user.isAdmin)) {
     res.status(200).json(order);
+  } else if (order) {
+    res.status(403);
+    throw new Error("Not authorized to view this order");
   } else {
     res.status(404);
     throw new Error("Order not found");
@@ -87,7 +92,9 @@ const getOrderById = async (req, res) => {
 const updateOrderToPaid = async (req, res) => {
   const order = await OrderModel.findById(req.params.id);
 
-  if (order) {
+  const isOwner = order?.user.toString() === req.user._id.toString();
+
+  if (order && isOwner) {
     order.isPaid = true;
     order.paidAt = Date.now();
     order.paymentResult = {
@@ -100,6 +107,9 @@ const updateOrderToPaid = async (req, res) => {
     const updatedOrder = await order.save();
 
     res.status(200).json(updatedOrder);
+  } else if (order) {
+    res.status(403);
+    throw new Error("Not authorized to pay for this order");
   } else {
     res.status(404);
     throw new Error("Order not found");

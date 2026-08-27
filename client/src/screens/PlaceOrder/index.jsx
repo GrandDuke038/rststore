@@ -107,9 +107,9 @@ const PlaceOrderScreen = () => {
                     </div>
                     <p className="flex-none text-right font-medium text-slate-900">
                       <span className="font-normal text-slate-900">
-                        {product.qty} x ₹{product.price}{" "}
+                        {product.qty} x ${product.price}{" "}
                       </span>
-                      = ₹{product.price * product.qty}
+                      = ${product.price * product.qty}
                     </p>
                   </li>
                 ))}
@@ -127,28 +127,28 @@ const PlaceOrderScreen = () => {
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Items</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ₹{cart.itemsPrice}
+                    ${cart.itemsPrice}
                   </dd>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Shipping</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ₹{cart.shippingPrice}
+                    ${cart.shippingPrice}
                   </dd>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Taxes</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ₹{cart.taxPrice}
+                    ${cart.taxPrice}
                   </dd>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Total</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ₹{cart.totalPrice}
+                    ${cart.totalPrice}
                   </dd>
                 </div>
               </dl>

@@ -60,16 +60,12 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <PrivateRoute />,
-        children: [{ path: "/shipping", element: <ShippingScreen /> }],
-      },
-      { path: "/payment", element: <PaymentScreen /> },
-      { path: "/place-order", element: <PlaceOrderScreen /> },
-      { path: "/order/:id", element: <OrderScreen /> },
-      { path: "/profile", element: <ProfileScreen /> },
-      {
-        path: "",
-        element: <PrivateRoute />,
         children: [
+          { path: "/shipping", element: <ShippingScreen /> },
+          { path: "/payment", element: <PaymentScreen /> },
+          { path: "/place-order", element: <PlaceOrderScreen /> },
+          { path: "/order/:id", element: <OrderScreen /> },
+          { path: "/profile", element: <ProfileScreen /> },
           { path: "/support", element: <SupportScreen /> },
           { path: "/support/:id", element: <SupportTicketScreen /> },
         ],

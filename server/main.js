@@ -5,7 +5,6 @@ import path from "path";
 
 import dotenv from "dotenv";
 
-import products from "#data/products.data.js";
 import connectDB from "#config/db.config.js";
 import productRoutes from "#routes/product.routes.js";
 import { errorHandler } from "#middlewares/error.middleware.js";
@@ -37,9 +36,9 @@ app.use("/api/v1/config/paypal", (req, res) => {
 });
 
 //make the uploads folder static
-const __dirname = path.resolve();
+const __dirname = path.resolve(); //get absolute path
 app.use(
-  "/uploads",
+  "/uploads", //URL Prefix
   express.static(path.join(__dirname, "/uploads"), {
     maxAge: "30d",
     immutable: true,

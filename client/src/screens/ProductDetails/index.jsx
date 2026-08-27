@@ -34,6 +34,7 @@ const ProductDetailsScreen = () => {
     isError,
     error,
   } = useGetProductDetailsQuery(productId);
+
   const {
     data: reviews = [],
     isLoading: reviewsLoading,
@@ -94,7 +95,10 @@ const ProductDetailsScreen = () => {
                 className="rounded-lg"
               />
 
-              <section className="mt-12 max-w-2xl" aria-labelledby="reviews-heading">
+              <section
+                className="mt-12 max-w-2xl"
+                aria-labelledby="reviews-heading"
+              >
                 <h2
                   id="reviews-heading"
                   className="text-lg font-semibold text-slate-900"
@@ -197,7 +201,14 @@ const ProductDetailsScreen = () => {
                     </form>
                   ) : (
                     <p className="mt-3 text-sm text-slate-600">
-                      Please <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">sign in</Link> to write a review.
+                      Please{" "}
+                      <Link
+                        to="/login"
+                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                      >
+                        sign in
+                      </Link>{" "}
+                      to write a review.
                     </p>
                   )}
                 </div>

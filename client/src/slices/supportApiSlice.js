@@ -21,7 +21,10 @@ export const supportApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: { message },
       }),
-      invalidatesTags: (result, error, { id }) => ["Support", { type: "Support", id }],
+      invalidatesTags: (result, error, { id }) => [
+        "Support",
+        { type: "Support", id },
+      ],
     }),
     getAllTickets: builder.query({
       query: (params = {}) => ({ url: SUPPORT_URL, params }),
@@ -33,7 +36,10 @@ export const supportApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: { status },
       }),
-      invalidatesTags: (result, error, { id }) => ["Support", { type: "Support", id }],
+      invalidatesTags: (result, error, { id }) => [
+        "Support",
+        { type: "Support", id },
+      ],
     }),
     assignTicket: builder.mutation({
       query: ({ id, assignedTo }) => ({
@@ -41,7 +47,10 @@ export const supportApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: { assignedTo },
       }),
-      invalidatesTags: (result, error, { id }) => ["Support", { type: "Support", id }],
+      invalidatesTags: (result, error, { id }) => [
+        "Support",
+        { type: "Support", id },
+      ],
     }),
   }),
 });

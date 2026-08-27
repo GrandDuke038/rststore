@@ -3,7 +3,7 @@ import generateToken from "#utils/generate-token.utils.js";
 
 /**
  * @desc  Auth user
- * @route POST/api/users/login
+ * @route POST/api/v1/users/login
  * @access Public
  */
 

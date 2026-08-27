@@ -18,21 +18,21 @@ const Summary = ({
       <dl className="mt-6 space-y-4">
         <div className="flex items-center justify-between">
           <dt className="text-sm text-slate-600">Subtotal</dt>
-          <dd className="text-sm font-medium text-slate-900">₹{itemsPrice}</dd>
+          <dd className="text-sm font-medium text-slate-900">${itemsPrice}</dd>
         </div>
         <div className="flex items-center justify-between border-t border-slate-200 pt-4">
           <dt className="text-sm text-slate-600">Shipping</dt>
           <dd className="text-sm font-medium text-slate-900">
-            ₹{shippingPrice}
+            ${shippingPrice}
           </dd>
         </div>
         <div className="flex items-center justify-between border-t border-slate-200 pt-4">
           <dt className="text-sm text-slate-600">Tax (18%)</dt>
-          <dd className="text-sm font-medium text-slate-900">₹{taxPrice}</dd>
+          <dd className="text-sm font-medium text-slate-900">${taxPrice}</dd>
         </div>
         <div className="flex items-center justify-between border-t border-slate-200 pt-4">
           <dt className="text-sm text-slate-600">Order Total</dt>
-          <dd className="text-sm font-medium text-slate-900">₹{totalPrice}</dd>
+          <dd className="text-sm font-medium text-slate-900">${totalPrice}</dd>
         </div>
       </dl>
 
