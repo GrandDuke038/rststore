@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { setCredentials } from "@slices/authSlice";
-import { useRegisterMutation } from "@slices/userApiSlice";
+import { register } from "@actions/userActions";
 import { toast } from "react-toastify";
 
 const RegisterScreen = () => {
@@ -15,8 +14,8 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [register, { isLoading }] = useRegisterMutation();
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.userLogin);
+  const isLoading = useSelector((state) => state.userRegister.loading);
 
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
@@ -36,8 +35,7 @@ const RegisterScreen = () => {
       return;
     } else {
       try {
-        const response = await register({ name, email, password }).unwrap();
-        dispatch(setCredentials({ ...response }));
+        await dispatch(register(name, email, password));
         navigate(redirect);
       } catch (error) {
         console.error(error);

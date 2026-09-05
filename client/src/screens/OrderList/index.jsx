@@ -2,13 +2,22 @@ import { Link } from "react-router-dom";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { useGetOrdersQuery } from "@slices/orderApiSlice";
-import { useState } from "react";
+import { listOrders } from "@actions/orderActions";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const OrderListScreen = () => {
   const [page, setPage] = useState(1);
-  const { data, isLoading, error } = useGetOrdersQuery(page);
+  const dispatch = useDispatch();
+  const request = useSelector((state) => state.orderList);
+  const data = request;
+  const isLoading = request.loading;
+  const error = request.error;
   const orders = data?.orders || [];
+
+  useEffect(() => {
+    dispatch(listOrders(page));
+  }, [dispatch, page]);
 
   return (
     <div className="bg-white">

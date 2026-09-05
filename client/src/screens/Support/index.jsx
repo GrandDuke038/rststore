@@ -1,14 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import {
-  useCreateTicketMutation,
-  useGetMyTicketsQuery,
-} from "@slices/supportApiSlice";
+import { createTicket, getMyTickets } from "@actions/supportActions";
 
 const categories = [
   "Order Issue",
@@ -33,7 +30,8 @@ const badgeClass = (
   })[status] || "bg-gray-100 text-gray-700";
 
 const SupportScreen = () => {
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.userLogin);
+  const dispatch = useDispatch();
   const [status, setStatus] = useState("");
   const [form, setForm] = useState({
     subject: "",
@@ -41,12 +39,18 @@ const SupportScreen = () => {
     priority: "medium",
     message: "",
   });
-  const { data, isLoading, error } = useGetMyTicketsQuery(
-    status ? { status } : {},
-  );
-  const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
+  const ticketsRequest = useSelector((state) => state.api.requests.myTickets);
+  const createRequest = useSelector((state) => state.api.requests.createTicket);
+  const data = ticketsRequest?.data;
+  const isLoading = !ticketsRequest || ticketsRequest.isLoading;
+  const error = ticketsRequest?.error;
+  const isCreating = Boolean(createRequest?.isLoading);
 
   const tickets = data?.tickets || [];
+
+  useEffect(() => {
+    dispatch(getMyTickets(status ? { status } : {}));
+  }, [dispatch, status]);
 
   if (userInfo?.isAdmin === true) {
     return <Navigate to="/admin/support" replace />;
@@ -60,7 +64,8 @@ const SupportScreen = () => {
     }
 
     try {
-      await createTicket(form).unwrap();
+      await dispatch(createTicket(form));
+      dispatch(getMyTickets(status ? { status } : {}));
       setForm({
         subject: "",
         category: categories[0],

@@ -9,11 +9,11 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: "http://localhost:5001",
         changeOrigin: true,
       },
       "/uploads": {
-        target: "http://localhost:5000",
+        target: "http://localhost:5001",
         changeOrigin: true,
       },
     },
@@ -22,9 +22,10 @@ export default defineConfig({
     alias: {
       "@components": "/src/components",
       "@data": "/src/data",
-
       "@screens": "/src/screens",
-      "@slices": "/src/slices",
+      "@actions": "/src/actions",
+      "@hooks": "/src/hooks",
+      "@reducers": "/src/reducers",
       "@utils": "/src/utils",
     },
   },

@@ -1,10 +1,24 @@
 import OrderModel from "#models/order.model.js";
+import OrderItemModel from "#models/order-item.model.js";
+import UserModel from "#models/user.model.js";
+import { sequelize } from "#config/db.config.js";
 
-/**
- * @desc		Create new order
- * @route		POST /api/v1/orders
- * @access	Private
- */
+const orderInclude = [
+  { model: OrderItemModel, as: "orderItems" },
+  { model: UserModel, as: "userRecord", attributes: ["_id", "name", "email"] },
+];
+const presentOrder = (order) => {
+  const data = order.toJSON();
+  return {
+    ...data,
+    user: data.userRecord || data.user,
+    orderItems:
+      data.orderItems?.map((item) => ({
+        ...item,
+        product: { _id: item.product },
+      })) || [],
+  };
+};
 const createOrder = async (req, res) => {
   const {
     orderItems,
@@ -15,147 +29,126 @@ const createOrder = async (req, res) => {
     taxPrice,
     totalPrice,
   } = req.body;
-
-  if (orderItems && orderItems.length === 0) {
+  if (!orderItems?.length) {
     res.status(400);
     throw new Error("No order items");
-  } else {
-    const order = new OrderModel({
-      orderItems: orderItems.map((item) => ({
-        ...item,
-        product: { ...item },
-      })),
-      user: req.user._id,
-      shippingAddress,
-      paymentMethod,
-      itemsPrice,
-      shippingPrice,
-      taxPrice,
-      totalPrice,
-    });
-
-    const createdOrder = await order.save();
-
-    res.status(201).json(createdOrder);
   }
+  const order = await sequelize.transaction(async (transaction) => {
+    const created = await OrderModel.create(
+      {
+        user: req.user._id,
+        shippingAddress,
+        paymentMethod,
+        itemsPrice,
+        shippingPrice,
+        taxPrice,
+        totalPrice,
+      },
+      { transaction },
+    );
+    await OrderItemModel.bulkCreate(
+      orderItems.map(({ _id, name, qty, image, price }) => ({
+        order: created._id,
+        product: _id,
+        name,
+        qty,
+        image,
+        price,
+      })),
+      { transaction },
+    );
+    return created;
+  });
+  res
+    .status(201)
+    .json(
+      presentOrder(
+        await OrderModel.findByPk(order._id, { include: orderInclude }),
+      ),
+    );
 };
-
-/**
-
-@@ -15,7 +46,8 @@ const createOrder = async (req, res) => {
- * @access	Private
- */
 const getMyOrders = async (req, res) => {
   const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 10, 1), 50);
   const page = Math.max(Number(req.query.pageNumber) || 1, 1);
-  const filter = { user: req.user._id };
-  const [orders, count] = await Promise.all([
-    OrderModel.find(filter)
-      .select("orderItems shippingAddress totalPrice isPaid isDelivered deliveredAt createdAt")
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
-      .lean(),
-    OrderModel.countDocuments(filter),
-  ]);
-  res.status(200).json({ orders, page, pages: Math.ceil(count / pageSize) });
+  const { rows, count } = await OrderModel.findAndCountAll({
+    where: { user: req.user._id },
+    include: [{ model: OrderItemModel, as: "orderItems" }],
+    order: [["createdAt", "DESC"]],
+    offset: (page - 1) * pageSize,
+    limit: pageSize,
+  });
+  res.json({
+    orders: rows.map(presentOrder),
+    page,
+    pages: Math.ceil(count / pageSize),
+  });
 };
-
-/**
-
-@@ -24,7 +56,16 @@ const getMyOrders = async (req, res) => {
- * @access	Private
- */
 const getOrderById = async (req, res) => {
-  const order = await OrderModel.findById(req.params.id).populate(
-    "user",
-    "name email",
-  );
-  const isOwner = order?.user?._id.toString() === req.user._id.toString();
-
-  if (order && (isOwner || req.user.isAdmin)) {
-    res.status(200).json(order);
-  } else if (order) {
-    res.status(403);
-    throw new Error("Not authorized to view this order");
-  } else {
+  const order = await OrderModel.findByPk(req.params.id, {
+    include: orderInclude,
+  });
+  if (!order) {
     res.status(404);
     throw new Error("Order not found");
   }
+  if (order.user !== req.user._id && !req.user.isAdmin) {
+    res.status(403);
+    throw new Error("Not authorized to view this order");
+  }
+  res.json(presentOrder(order));
 };
-
-/**
- * @desc		Update order to paid
- * @route		PUT /api/v1/orders/:id/pay
- * @access	Private
- */
 const updateOrderToPaid = async (req, res) => {
-  const order = await OrderModel.findById(req.params.id);
-
-  const isOwner = order?.user.toString() === req.user._id.toString();
-
-  if (order && isOwner) {
-    order.isPaid = true;
-    order.paidAt = Date.now();
-    order.paymentResult = {
+  const order = await OrderModel.findByPk(req.params.id);
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+  if (order.user !== req.user._id) {
+    res.status(403);
+    throw new Error("Not authorized to pay for this order");
+  }
+  await order.update({
+    isPaid: true,
+    paidAt: new Date(),
+    paymentResult: {
       id: req.body.id,
       status: req.body.status,
       update_time: req.body.update_time,
-      email_address: req.body.payer.email_address,
-    };
-
-    const updatedOrder = await order.save();
-
-    res.status(200).json(updatedOrder);
-  } else if (order) {
-    res.status(403);
-    throw new Error("Not authorized to pay for this order");
-  } else {
-    res.status(404);
-    throw new Error("Order not found");
-  }
+      email_address: req.body.payer?.email_address,
+    },
+  });
+  res.json(order);
 };
-
-/**
- * @desc		Update order to delivered
- * @route		PUT /api/v1/orders/:id/deliver
- * @access	Private/Admin
- */
 const updateOrderToDelivered = async (req, res) => {
-  const order = await OrderModel.findById(req.params.id);
-  if (order) {
-    order.isDelivered = true;
-    order.deliveredAt = Date.now();
-
-    const updatedOrder = await order.save();
-    res.status(200).json(updatedOrder);
-  } else {
+  const order = await OrderModel.findByPk(req.params.id);
+  if (!order) {
     res.status(404);
     throw new Error("Order not found");
   }
+  await order.update({ isDelivered: true, deliveredAt: new Date() });
+  res.json(order);
 };
-
-/**
- * @desc		Get all orders
- * @route		GET /api/v1/orders
- * @access	Private/Admin
- */
 const getOrders = async (req, res) => {
   const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 25, 1), 100);
   const page = Math.max(Number(req.query.pageNumber) || 1, 1);
-  const [orders, count] = await Promise.all([
-    OrderModel.find({})
-      .select("user totalPrice isPaid isDelivered createdAt")
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
-      .populate("user", "name email")
-      .lean(),
-    OrderModel.countDocuments(),
-  ]);
-  res.status(200).json({ orders, page, pages: Math.ceil(count / pageSize) });
+  const { rows, count } = await OrderModel.findAndCountAll({
+    include: [
+      {
+        model: UserModel,
+        as: "userRecord",
+        attributes: ["_id", "name", "email"],
+      },
+    ],
+    order: [["createdAt", "DESC"]],
+    offset: (page - 1) * pageSize,
+    limit: pageSize,
+  });
+  res.json({
+    orders: rows.map(presentOrder),
+    page,
+    pages: Math.ceil(count / pageSize),
+  });
 };
-
 export {
   createOrder,
   getMyOrders,

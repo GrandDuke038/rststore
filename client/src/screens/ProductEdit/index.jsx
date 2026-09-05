@@ -5,10 +5,11 @@ import { toast } from "react-toastify";
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
 import {
-  useGetProductDetailsQuery,
-  useUpdateProductMutation,
-  useUploadProductImageMutation,
-} from "@slices/productApiSlice";
+  getProductDetails,
+  updateProduct,
+  uploadProductImage,
+} from "@actions/productActions";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductEditScreen = () => {
   const { id: productId } = useParams();
@@ -23,17 +24,17 @@ const ProductEditScreen = () => {
   const [content, setContent] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const productRequest = useSelector((state) => state.productDetails);
+  const updateRequest = useSelector((state) => state.productUpdate);
+  const product = productRequest.product;
+  const isLoading = productRequest.loading;
+  const error = productRequest.error;
+  const loadingUpdate = updateRequest.loading;
 
-  const {
-    data: product,
-    isLoading,
-    error,
-  } = useGetProductDetailsQuery(productId);
-
-  const [updateProduct, { isLoading: loadingUpdate }] =
-    useUpdateProductMutation();
-
-  const [uploadProductImage] = useUploadProductImageMutation();
+  useEffect(() => {
+    dispatch(getProductDetails(productId));
+  }, [dispatch, productId]);
 
   useEffect(() => {
     if (product) {
@@ -62,7 +63,7 @@ const ProductEditScreen = () => {
       description,
       content,
     };
-    const result = await updateProduct(updatedProduct).unwrap();
+    const result = await dispatch(updateProduct(updatedProduct));
     if (result.error) {
       toast.error(result?.error);
     } else {
@@ -75,7 +76,7 @@ const ProductEditScreen = () => {
     const formData = new FormData();
     formData.append("image", e.target.files[0]);
     try {
-      const result = await uploadProductImage(formData).unwrap();
+      const result = await dispatch(uploadProductImage(formData));
       toast.success(result.message);
       setImage(result.image);
     } catch (error) {
@@ -93,7 +94,7 @@ const ProductEditScreen = () => {
         {isLoading ? (
           <Loader />
         ) : error ? (
-          <Alert type="error">{error?.data?.message || error?.message}</Alert>
+          <Alert type="error">{error}</Alert>
         ) : (
           <form className="mx-auto mt-20 max-w-3xl" onSubmit={handleSubmit}>
             <div className="space-y-12">

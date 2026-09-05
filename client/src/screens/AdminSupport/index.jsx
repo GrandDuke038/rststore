@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { useGetAllTicketsQuery } from "@slices/supportApiSlice";
+import { getAllTickets } from "@actions/supportActions";
+import { useDispatch, useSelector } from "react-redux";
 
 const categories = [
   "Order Issue",
@@ -24,12 +25,21 @@ const AdminSupportScreen = () => {
     category: "",
     priority: "",
   });
-  const query = Object.fromEntries(
-    Object.entries(filters).filter(([, value]) => value),
+  const query = useMemo(
+    () => Object.fromEntries(Object.entries(filters).filter(([, value]) => value)),
+    [filters],
   );
-  const { data, isLoading, error } = useGetAllTicketsQuery(query);
+  const dispatch = useDispatch();
+  const request = useSelector((state) => state.api.requests.tickets);
+  const data = request?.data;
+  const isLoading = !request || request.isLoading;
+  const error = request?.error;
   const tickets = data?.tickets || [];
   const setFilter = (name, value) => setFilters({ ...filters, [name]: value }); //[name] is a computed property name
+
+  useEffect(() => {
+    dispatch(getAllTickets(query));
+  }, [dispatch, query]);
 
   return (
     <div className="bg-white">

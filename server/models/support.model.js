@@ -1,38 +1,18 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
+import { sequelize } from "#config/db.config.js";
+const SupportModel = sequelize.define(
+  "SupportModel",
 
-const replySchema = new mongoose.Schema(
   {
-    sender: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserModel",
-      required: [true, "Reply sender is required"],
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-    message: {
-      type: String,
-      required: [true, "Reply message is required"],
-      trim: true,
-      maxlength: [5000, "Reply message cannot exceed 5000 characters"],
-    },
-  },
-  { timestamps: true },
-);
-
-const supportSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserModel",
-      required: [true, "Ticket owner is required"],
-    },
-    subject: {
-      type: String,
-      required: [true, "Ticket subject is required"],
-      trim: true,
-      maxlength: [160, "Subject cannot exceed 160 characters"],
-    },
+    user: { type: DataTypes.UUID, allowNull: false },
+    subject: { type: DataTypes.STRING(160), allowNull: false },
     category: {
-      type: String,
-      enum: [
+      type: DataTypes.ENUM(
         "Order Issue",
         "Payment Issue",
         "Delivery Issue",
@@ -40,38 +20,27 @@ const supportSchema = new mongoose.Schema(
         "Account Issue",
         "Technical Issue",
         "Other",
-      ],
-      required: [true, "Ticket category is required"],
+      ),
+      allowNull: false,
     },
-    message: {
-      type: String,
-      required: [true, "Ticket message is required"],
-      trim: true,
-      maxlength: [5000, "Ticket message cannot exceed 5000 characters"],
-    },
+    message: { type: DataTypes.TEXT, allowNull: false },
     status: {
-      type: String,
-      enum: ["open", "in_progress", "resolved", "closed"],
-      default: "open",
+      type: DataTypes.ENUM("open", "in_progress", "resolved", "closed"),
+      defaultValue: "open",
     },
     priority: {
-      type: String,
-      enum: ["low", "medium", "high"],
-      default: "medium",
+      type: DataTypes.ENUM("low", "medium", "high"),
+      defaultValue: "medium",
     },
-    replies: [replySchema],
-    assignedTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserModel",
-      default: null,
-    },
+    assignedTo: { type: DataTypes.UUID, allowNull: true },
   },
-  { timestamps: true, collection: "support_tickets" },
+  {
+    tableName: "support_tickets",
+    timestamps: true,
+    indexes: [
+      { fields: ["user", "updatedAt"] },
+      { fields: ["status", "category", "priority"] },
+    ],
+  },
 );
-
-supportSchema.index({ user: 1, updatedAt: -1 });
-supportSchema.index({ status: 1, category: 1, priority: 1, updatedAt: -1 });
-
-const SupportModel = mongoose.model("SupportModel", supportSchema);
-
 export default SupportModel;

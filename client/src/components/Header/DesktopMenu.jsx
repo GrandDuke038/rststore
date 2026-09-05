@@ -8,8 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
-import { logout } from "@slices/authSlice";
-import { useLogoutMutation } from "@slices/userApiSlice";
+import { logout } from "@actions/userActions";
 import MenuItem from "./MenuItem";
 
 const DesktopMenu = () => {
@@ -17,7 +16,7 @@ const DesktopMenu = () => {
   const navigate = useNavigate();
 
   const { cartItems } = useSelector((state) => state.cart);
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.userLogin);
   const isAdmin = userInfo?.isAdmin === true;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -25,12 +24,9 @@ const DesktopMenu = () => {
   const menuRef = useRef(null);
   const adminMenuRef = useRef(null);
 
-  const [logoutApiCall] = useLogoutMutation();
-
   const handleLogout = async () => {
     try {
-      await logoutApiCall().unwrap();
-      dispatch(logout());
+      await dispatch(logout());
       navigate("/login");
     } catch (error) {
       console.error(error);

@@ -8,7 +8,7 @@ import {
 import { useSelector } from "react-redux";
 
 const MobileMenu = () => {
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.userLogin);
 
   return (
     <nav className="relative z-10 w-full overflow-auto bg-white pb-2 sm:max-w-sm">

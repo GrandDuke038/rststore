@@ -1,27 +1,28 @@
-import mongoose from "mongoose";
-
-const reviewSchema = new mongoose.Schema(
+import { DataTypes } from "sequelize";
+import { sequelize } from "#config/db.config.js";
+const ReviewModel = sequelize.define(
+  "ReviewModel",
   {
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ProductModel",
-      required: true,
-      index: true,
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserModel",
-      required: true,
+    product: { type: DataTypes.UUID, allowNull: false },
+    user: { type: DataTypes.UUID, allowNull: false },
+    name: { type: DataTypes.STRING, allowNull: false },
+    rating: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: { min: 1, max: 5 },
     },
-    name: { type: String, required: true },
-    rating: { type: Number, required: true, min: 1, max: 5 },
-    comment: { type: String, required: true },
-    isDemo: { type: Boolean, default: false },
+    comment: { type: DataTypes.TEXT, allowNull: false },
+    isDemo: { type: DataTypes.BOOLEAN, defaultValue: false },
   },
-  { timestamps: true, collection: "reviews" },
+  {
+    tableName: "reviews",
+    timestamps: true,
+    indexes: [{ unique: true, fields: ["product", "user"] }],
+  },
 );
-
-// Enforces one review per shopper without reading the product's review history.
-reviewSchema.index({ product: 1, user: 1 }, { unique: true });
-
-export default mongoose.model("ReviewModel", reviewSchema);
+export default ReviewModel;

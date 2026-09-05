@@ -1,109 +1,141 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
 
-const orderSchema = new mongoose.Schema(
+import { sequelize } from "#config/db.config.js";
+
+const OrderModel = sequelize.define(
+  "OrderModel",
   {
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: [true, "User ID is required"],
-      ref: "UserModel",
+      type: DataTypes.UUID,
+      allowNull: false,
     },
-    orderItems: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        qty: {
-          type: Number,
-          required: true,
-        },
-        image: {
-          type: String,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          required: true,
-          ref: "ProductModel",
-        },
-      },
-    ],
+
     shippingAddress: {
-      address: {
-        type: String,
-        required: true,
-      },
-      city: {
-        type: String,
-        required: true,
-      },
-      postalCode: {
-        type: String,
-        required: true,
-      },
-      country: {
-        type: String,
-        required: true,
-      },
+      type: DataTypes.JSON,
+      allowNull: false,
     },
+
     paymentMethod: {
-      type: String,
-      required: [true, "Payment method is required"],
+      type: DataTypes.STRING,
+      allowNull: false,
     },
+
     paymentResult: {
-      id: { type: String },
-      status: { type: String },
-      update_time: { type: String },
-      email_address: { type: String },
+      type: DataTypes.JSON,
     },
+
     itemsPrice: {
-      type: Number,
-      required: [true, "Items price is required"],
-      default: 0.0,
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
     },
+
     taxPrice: {
-      type: Number,
-      required: [true, "Tax price is required"],
-      default: 0.0,
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
     },
+
     shippingPrice: {
-      type: Number,
-      required: [true, "Shipping price is required"],
-      default: 0.0,
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
     },
+
     totalPrice: {
-      type: Number,
-      required: [true, "Total price is required"],
-      default: 0.0,
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
     },
+
     isPaid: {
-      type: Boolean,
-      default: false,
-      required: [true, "Payment status is required"],
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
+
     paidAt: {
-      type: Date,
+      type: DataTypes.DATE,
     },
+
     isDelivered: {
-      type: Boolean,
-      default: false,
-      required: [true, "Delivery status is required"],
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+
+    deliveredAt: {
+      type: DataTypes.DATE,
     },
   },
-
   {
+    tableName: "orders",
     timestamps: true,
-    collection: "orders",
+
+    indexes: [
+      {
+        fields: ["user", "createdAt"],
+      },
+    ],
   },
 );
 
-orderSchema.index({ user: 1, createdAt: -1 });
-orderSchema.index({ createdAt: -1 });
-
-const orderModel = mongoose.model("orderModel", orderSchema);
-
-export default orderModel;
+export default OrderModel;
+/*import { DataTypes, Model } from "sequelize";
+import { sequelize } from "#config/db.config.js";
+class OrderModel extends Model {}
+OrderModel.init(
+  {
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    user: { type: DataTypes.UUID, allowNull: false },
+    shippingAddress: { type: DataTypes.JSON, allowNull: false },
+    paymentMethod: { type: DataTypes.STRING, allowNull: false },
+    paymentResult: { type: DataTypes.JSON },
+    itemsPrice: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    taxPrice: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    shippingPrice: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    totalPrice: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    isPaid: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    paidAt: { type: DataTypes.DATE },
+    isDelivered: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    deliveredAt: { type: DataTypes.DATE },
+  },
+  {
+    sequelize,
+    modelName: "OrderModel",
+    tableName: "orders",
+    timestamps: true,
+    indexes: [{ fields: ["user", "createdAt"] }],
+  },
+);
+export default OrderModel;*/

@@ -4,17 +4,17 @@ import ReactMarkdown from "react-markdown";
 import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
 import Rating from "@components/ProductCard/Rating";
 import QuantitySelector from "./QuantitySelector";
-import { useGetProductDetailsQuery } from "@slices/productApiSlice";
+import {
+  createProductReview,
+  getProductDetails,
+  getProductReviews,
+} from "@actions/productActions";
 import Loader from "@components/Loader";
 import Alert from "@components/Alert";
 import { useDispatch } from "react-redux";
-import { addToCart } from "@slices/cartSlice";
-import { useState } from "react";
+import { addToCart } from "@actions/cartActions";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import {
-  useCreateProductReviewMutation,
-  useGetProductReviewsQuery,
-} from "@slices/productApiSlice";
 import { toast } from "react-toastify";
 import { IoStar, IoStarOutline } from "react-icons/io5";
 
@@ -26,25 +26,27 @@ const ProductDetailsScreen = () => {
   const [comment, setComment] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.userLogin);
 
-  const {
-    data: product,
-    isLoading,
-    isError,
-    error,
-  } = useGetProductDetailsQuery(productId);
+  const productRequest = useSelector((state) => state.productDetails);
+  const reviewsRequest = useSelector((state) => state.productReviews);
+  const reviewRequest = useSelector((state) => state.productReviewCreate);
+  const product = productRequest.product;
+  const isLoading = productRequest.loading;
+  const isError = Boolean(productRequest.error);
+  const error = productRequest.error;
+  const reviews = reviewsRequest.reviews;
+  const reviewsLoading = reviewsRequest.loading;
+  const reviewsError = reviewsRequest.error;
+  const isSubmittingReview = reviewRequest.loading;
 
-  const {
-    data: reviews = [],
-    isLoading: reviewsLoading,
-    error: reviewsError,
-  } = useGetProductReviewsQuery(productId);
-  const [createProductReview, { isLoading: isSubmittingReview }] =
-    useCreateProductReviewMutation();
+  useEffect(() => {
+    dispatch(getProductDetails(productId));
+    dispatch(getProductReviews(productId));
+  }, [dispatch, productId]);
 
   const handleAddToCart = () => {
-    dispatch(addToCart({ ...product, qty }));
+    dispatch(addToCart(productId, qty));
     navigate("/cart");
   };
 
@@ -57,7 +59,8 @@ const ProductDetailsScreen = () => {
     }
 
     try {
-      await createProductReview({ productId, rating, comment }).unwrap();
+      await dispatch(createProductReview({ productId, rating, comment }));
+      dispatch(getProductReviews(productId));
       setRating(0);
       setComment("");
       toast.success("Thank you for your review");
@@ -82,7 +85,7 @@ const ProductDetailsScreen = () => {
         {isLoading ? (
           <Loader />
         ) : isError ? (
-          <Alert type="error">{error.data?.message || error?.error}</Alert>
+          <Alert type="error">{error}</Alert>
         ) : (
           <div className="lg:grid lg:auto-rows-min lg:grid-cols-12 lg:gap-x-8">
             {/* Image */}
@@ -111,7 +114,7 @@ const ProductDetailsScreen = () => {
                     <Loader />
                   ) : reviewsError ? (
                     <Alert type="error">
-                      {reviewsError?.data?.message || reviewsError?.error}
+                      {reviewsError}
                     </Alert>
                   ) : reviews.length ? (
                     reviews.map((review) => (

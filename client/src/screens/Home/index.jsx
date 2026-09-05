@@ -1,21 +1,28 @@
-import { useGetProductsQuery } from "@slices/productApiSlice";
+import { listProducts } from "@actions/productActions";
 import ProductCard from "@components/ProductCard";
 import Loader from "@components/Loader";
 import Alert from "@components/Alert";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Paginate from "@components/Paginate";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const HomeScreen = () => {
   const { pageNumber, keyword } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const dispatch = useDispatch();
+  const request = useSelector((state) => state.productList);
+  const data = request;
+  const isLoading = request.loading;
+  const isError = Boolean(request.error);
+  const error = request.error;
+  const cursor = searchParams.get("cursor") || undefined;
 
-  const { data, isLoading, isError, error } = useGetProductsQuery({
-    pageNumber,
-    keyword,
-    cursor: searchParams.get("cursor") || undefined,
-  });
+  useEffect(() => {
+    dispatch(listProducts({ pageNumber, keyword, cursor }));
+  }, [dispatch, pageNumber, keyword, cursor]);
 
   return (
     <section className="bg-white">
@@ -23,7 +30,7 @@ const HomeScreen = () => {
         {isLoading ? (
           <Loader />
         ) : isError ? (
-          <Alert type="error">{error.data?.message || error?.error}</Alert>
+          <Alert type="error">{error}</Alert>
         ) : (
           <>
             <div className="flex items-center gap-2">
@@ -45,9 +52,9 @@ const HomeScreen = () => {
           </>
         )}
         <Paginate
-          pages={data?.pages}
-          page={data?.page}
-          nextCursor={data?.nextCursor}
+          pages={data.pages}
+          page={data.page}
+          nextCursor={data.nextCursor}
           keyword={keyword}
         />
       </div>

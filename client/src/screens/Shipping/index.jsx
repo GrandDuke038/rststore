@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import SelectInput from "@components/FormInput/SelectInput";
 import TextInput from "@components/FormInput/TextInput";
 import countries from "@data/countries";
-import { saveShippingAddress } from "@slices/cartSlice";
+import { saveShippingAddress } from "@actions/cartActions";
 import CheckoutSteps from "@components/CheckoutSteps";
 
 const ShippingScreen = () => {

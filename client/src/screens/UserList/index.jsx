@@ -1,24 +1,34 @@
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { useDeleteUserMutation, useGetUsersQuery } from "@slices/userApiSlice";
+import { deleteUser, listUsers } from "@actions/userActions";
+import { useDispatch, useSelector } from "react-redux";
 
 const UserListScreen = () => {
   const [page, setPage] = useState(1);
-  const { data, error, isLoading, refetch } = useGetUsersQuery(page);
+  const dispatch = useDispatch();
+  const request = useSelector((state) => state.userList);
+  const deleteRequest = useSelector((state) => state.userDelete);
+  const data = request;
+  const error = request.error;
+  const isLoading = request.loading;
   const users = data?.users || [];
-  const [deleteUser, { isLoading: loadingDelete }] = useDeleteUserMutation();
+  const loadingDelete = deleteRequest.loading;
+
+  useEffect(() => {
+    dispatch(listUsers(page));
+  }, [dispatch, page]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
       try {
-        await deleteUser(id).unwrap();
+        await dispatch(deleteUser(id));
         toast.success("User deleted successfully");
-        refetch();
+        dispatch(listUsers(page));
       } catch (error) {
         toast.error(error?.data?.message || error?.message);
       }

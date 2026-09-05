@@ -5,8 +5,8 @@ import { toast } from "react-toastify";
 
 import CheckoutSteps from "@components/CheckoutSteps";
 import Loader from "@components/Loader/index";
-import { clearCartItems } from "@slices/cartSlice";
-import { useCreateOrderMutation } from "@slices/orderApiSlice";
+import { clearCartItems } from "@actions/cartActions";
+import { createOrder } from "@actions/orderActions";
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
@@ -22,11 +22,11 @@ const PlaceOrderScreen = () => {
     }
   }, [cart.shippingAddress, cart.paymentMethod, navigate]);
 
-  const [createOrder, { isLoading }] = useCreateOrderMutation();
+  const isLoading = useSelector((state) => state.orderCreate.loading);
 
   const handlerPlaceOrder = async () => {
     try {
-      const response = await createOrder({
+      const response = await dispatch(createOrder({
         orderItems: cart.cartItems,
         shippingAddress: cart.shippingAddress,
         paymentMethod: cart.paymentMethod,
@@ -34,7 +34,7 @@ const PlaceOrderScreen = () => {
         shippingPrice: cart.shippingPrice,
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
-      }).unwrap();
+      }));
 
       dispatch(clearCartItems());
 

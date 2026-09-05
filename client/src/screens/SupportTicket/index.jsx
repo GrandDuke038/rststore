@@ -1,34 +1,43 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
 import {
-  useAssignTicketMutation,
-  useGetTicketByIdQuery,
-  useReplyToTicketMutation,
-  useUpdateTicketStatusMutation,
-} from "@slices/supportApiSlice";
-import { useGetUsersQuery } from "@slices/userApiSlice";
+  assignTicket,
+  getTicketById,
+  replyToTicket,
+  updateTicketStatus,
+} from "@actions/supportActions";
+import { listUsers } from "@actions/userActions";
 
 const statuses = ["open", "in_progress", "resolved", "closed"];
 const statusClass = (status) => ({ open: "bg-blue-100 text-blue-800", in_progress: "bg-amber-100 text-amber-800", resolved: "bg-green-100 text-green-800", closed: "bg-gray-200 text-gray-700" })[status];
 
 const SupportTicketScreen = () => {
   const { id } = useParams();
-  const { userInfo } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const { userInfo } = useSelector((state) => state.userLogin);
   const isAdmin = userInfo?.isAdmin;
-  const { data: ticket, isLoading, error } = useGetTicketByIdQuery(id);
-  const { data: usersData } = useGetUsersQuery(1, { skip: !isAdmin });
+  const ticketRequest = useSelector((state) => state.api.requests.ticket);
+  const usersData = useSelector((state) => state.userList);
+  const ticket = ticketRequest?.data;
+  const isLoading = !ticketRequest || ticketRequest.isLoading;
+  const error = ticketRequest?.error;
   const [reply, setReply] = useState("");
   const [status, setStatus] = useState("");
   const [assignee, setAssignee] = useState("");
-  const [replyToTicket, { isLoading: isReplying }] = useReplyToTicketMutation();
-  const [updateTicketStatus, { isLoading: isUpdatingStatus }] = useUpdateTicketStatusMutation();
-  const [assignTicket, { isLoading: isAssigning }] = useAssignTicketMutation();
+  const isReplying = Boolean(useSelector((state) => state.api.requests.replyTicket?.isLoading));
+  const isUpdatingStatus = Boolean(useSelector((state) => state.api.requests.ticketStatus?.isLoading));
+  const isAssigning = Boolean(useSelector((state) => state.api.requests.ticketAssignment?.isLoading));
   const admins = (usersData?.users || []).filter((user) => user.isAdmin);
+
+  useEffect(() => {
+    dispatch(getTicketById(id));
+    if (isAdmin) dispatch(listUsers());
+  }, [dispatch, id, isAdmin]);
 
   useEffect(() => {
     if (ticket) {
@@ -41,7 +50,8 @@ const SupportTicketScreen = () => {
     event.preventDefault();
     if (!reply.trim()) return;
     try {
-      await replyToTicket({ id, message: reply }).unwrap();
+      await dispatch(replyToTicket({ id, message: reply }));
+      dispatch(getTicketById(id));
       setReply("");
       toast.success("Reply sent");
     } catch (requestError) {
@@ -51,7 +61,8 @@ const SupportTicketScreen = () => {
 
   const statusHandler = async () => {
     try {
-      await updateTicketStatus({ id, status }).unwrap();
+      await dispatch(updateTicketStatus({ id, status }));
+      dispatch(getTicketById(id));
       toast.success("Ticket status updated");
     } catch (requestError) {
       toast.error(requestError?.data?.message || requestError?.message);
@@ -60,7 +71,8 @@ const SupportTicketScreen = () => {
 
   const assignmentHandler = async () => {
     try {
-      await assignTicket({ id, assignedTo: assignee || null }).unwrap();
+      await dispatch(assignTicket({ id, assignedTo: assignee || null }));
+      dispatch(getTicketById(id));
       toast.success("Ticket assignment updated");
     } catch (requestError) {
       toast.error(requestError?.data?.message || requestError?.message);

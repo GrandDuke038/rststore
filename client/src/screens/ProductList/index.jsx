@@ -4,28 +4,36 @@ import Alert from "@components/Alert";
 import Loader from "@components/Loader";
 
 import {
-  useCreateProductMutation,
-  useGetProductsQuery,
-  useDeleteProductMutation,
-} from "@slices/productApiSlice";
+  createProduct,
+  deleteProduct,
+  listProducts,
+} from "@actions/productActions";
 import { toast } from "react-toastify";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductListScreen = () => {
-  const { data, error, isLoading, refetch } = useGetProductsQuery({});
-  const products = data?.products || [];
+  const dispatch = useDispatch();
+  const request = useSelector((state) => state.productList);
+  const createRequest = useSelector((state) => state.productCreate);
+  const deleteRequest = useSelector((state) => state.productDelete);
+  const data = request;
+  const error = request.error;
+  const isLoading = request.loading;
+  const products = data.products;
+  const loadingCreate = createRequest.loading;
+  const loadingDelete = deleteRequest.loading;
 
-  const [createProduct, { isLoading: loadingCreate }] =
-    useCreateProductMutation();
-
-  const [deleteProduct, { isLoading: loadingDelete }] =
-    useDeleteProductMutation();
+  useEffect(() => {
+    dispatch(listProducts());
+  }, [dispatch]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
       try {
-        await deleteProduct(id).unwrap();
+        await dispatch(deleteProduct(id));
         toast.success("Product deleted successfully");
-        refetch();
+        dispatch(listProducts());
       } catch (error) {
         toast.error(error?.data?.message || error?.error);
       }
@@ -35,8 +43,8 @@ const ProductListScreen = () => {
   const handleCreateProduct = async () => {
     if (window.confirm("Are you sure you want to create a new product?")) {
       try {
-        await createProduct().unwrap();
-        refetch();
+        await dispatch(createProduct());
+        dispatch(listProducts());
       } catch (error) {
         toast.error(error?.data?.message || error?.error);
       }
@@ -63,7 +71,7 @@ const ProductListScreen = () => {
         {isLoading ? (
           <Loader />
         ) : error ? (
-          <Alert type="error">{error?.data?.message || error?.message}</Alert>
+          <Alert type="error">{error}</Alert>
         ) : (
           <div className="mt-8 flow-root">
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">

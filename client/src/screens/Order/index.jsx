@@ -7,7 +7,7 @@ import {
   PayPalScriptProvider,
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -15,36 +15,43 @@ import Alert from "@components/Alert";
 import Loader from "@components/Loader";
 
 import {
-  useDeliverOrderMutation,
-  useGetOrderDetailsQuery,
-  useGetPayPalClientIdQuery,
-  usePayOrderMutation,
-} from "@slices/orderApiSlice";
-import { useEffect } from "react";
+  deliverOrder,
+  getOrderDetails,
+  getPayPalClientId,
+  payOrder,
+} from "@actions/orderActions";
+import { useEffect, useState } from "react";
 
 const OrderContent = () => {
   const { id: orderId } = useParams();
-
-  const {
-    data: order,
-    isLoading,
-    error,
-    refetch,
-  } = useGetOrderDetailsQuery(orderId);
-
-  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
-  const [deliverOrder, { isLoading: loadingDeliver }] =
-    useDeliverOrderMutation();
+  const dispatch = useDispatch();
+  const orderRequest = useSelector((state) => state.orderDetails);
+  const payRequest = useSelector((state) => state.orderPay);
+  const deliverRequest = useSelector((state) => state.orderDeliver);
+  const order = orderRequest.order;
+  const isLoading = orderRequest.loading;
+  const error = orderRequest.error;
+  const loadingPay = payRequest.loading;
+  const loadingDeliver = deliverRequest.loading;
 
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.userLogin);
 
-  const {
-    data: paypal,
-    isLoading: loadingPayPal,
-    error: errorPayPal,
-  } = useGetPayPalClientIdQuery();
+  const [paypal, setPaypal] = useState(null);
+  const [loadingPayPal, setLoadingPayPal] = useState(true);
+  const [errorPayPal, setErrorPayPal] = useState(null);
+
+  useEffect(() => {
+    dispatch(getOrderDetails(orderId));
+  }, [dispatch, orderId]);
+
+  useEffect(() => {
+    getPayPalClientId()
+      .then(setPaypal)
+      .catch((requestError) => setErrorPayPal(requestError))
+      .finally(() => setLoadingPayPal(false));
+  }, []);
 
   useEffect(() => {
     if (!errorPayPal && !loadingPayPal && paypal.clientId) {
@@ -71,8 +78,8 @@ const OrderContent = () => {
     return actions.order.capture().then(async function (details) {
       try {
         console.log(details);
-        await payOrder({ id: orderId, details });
-        refetch();
+        await dispatch(payOrder(orderId, details));
+        dispatch(getOrderDetails(orderId));
         toast.success("Order paid successfully");
       } catch (error) {
         toast.error(error?.data?.message || error?.message);
@@ -102,8 +109,8 @@ const OrderContent = () => {
 
   const handleDeliver = async () => {
     try {
-      await deliverOrder(orderId);
-      refetch();
+      await dispatch(deliverOrder(orderId));
+      dispatch(getOrderDetails(orderId));
       toast.success("Order marked as delivered");
     } catch (error) {
       toast.error(error?.data?.message || error?.message);

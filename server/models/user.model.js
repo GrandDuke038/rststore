@@ -1,43 +1,91 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
 import bcrypt from "bcryptjs";
+import { sequelize } from "#config/db.config.js";
 
-const userSchema = mongoose.Schema(
+const UserModel = sequelize.define(
+  "UserModel",
   {
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     name: {
-      type: String,
-      required: [true, "User's full name is required"],
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     email: {
-      type: String,
-      required: [true, "User's email is required"],
-      unique: [true, "User's email must be unique"],
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: { isEmail: true },
     },
-    password: { type: String, required: [true, "User's password is required"] },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     isAdmin: {
-      type: Boolean,
-      required: [true, "User's admin status is required"],
-      default: false,
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   },
   {
+    tableName: "users",
     timestamps: true,
-    collection: "users",
+    hooks: {
+      beforeSave: async (user) => {
+        if (user.changed("password")) {
+          user.password = await bcrypt.hash(user.password, 10);
+        }
+      },
+    },
   },
 );
 
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+UserModel.prototype.matchPassword = function (password) {
+  return bcrypt.compare(password, this.password);
 };
 
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) {
-    return;
+export default UserModel;
+
+/*import { DataTypes, Model } from "sequelize";
+import bcrypt from "bcryptjs";
+import { sequelize } from "#config/db.config.js";
+class UserModel extends Model {
+  async matchPassword(password) {
+    return bcrypt.compare(password, this.password);
   }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-userSchema.index({ createdAt: -1 });
-const userModel = mongoose.model("UserModel", userSchema);
-
-export default userModel;
+}
+UserModel.init(
+  {
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    name: { type: DataTypes.STRING, allowNull: false },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: { isEmail: true },
+    },
+    password: { type: DataTypes.STRING, allowNull: false },
+    isAdmin: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+  },
+  {
+    sequelize,
+    modelName: "UserModel",
+    tableName: "users",
+    timestamps: true,
+    hooks: {
+      beforeSave: async (user) => {
+        if (user.changed("password"))
+          user.password = await bcrypt.hash(user.password, 10);
+      },
+    },
+  },
+);
+export default UserModel;
+*/

@@ -1,57 +1,125 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
+import { sequelize } from "#config/db.config.js";
 
-const productSchema = mongoose.Schema(
+const ProductModel = sequelize.define(
+  "ProductModel",
   {
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: [true, "User ID is required"],
-      ref: "UserModel",
+      type: DataTypes.UUID,
+      allowNull: false,
     },
+
     name: {
-      type: String,
-      required: [true, "Product name is required"],
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    price: { type: Number, required: [true, "Product price is required"] },
+
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+    },
+
     description: {
-      type: String,
-      required: [true, "Product description is required"],
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
-    image: { type: String, required: [true, "Product image is required"] },
-    brand: { type: String, required: [true, "Product brand is required"] },
+
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
+    brand: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
     category: {
-      type: String,
-      required: [true, "Product category is required"],
+      type: DataTypes.STRING,
+      allowNull: false,
     },
+
     countInStock: {
-      type: Number,
-      required: [true, "Product countInStock is required"],
-      default: 0,
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
     },
+
     rating: {
-      type: Number,
-      required: [true, "Product rating is required"],
-      default: 0,
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
     },
+
     numReviews: {
-      type: Number,
-      required: [true, "Product number of reviews is required"],
-      default: 0,
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
     },
+
     content: {
-      type: String,
-      required: [true, "Product content is required"],
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
   },
   {
+    tableName: "products",
     timestamps: true,
-    collection: "products",
+
+    indexes: [
+      { fields: ["createdAt"] },
+      { fields: ["name"] },
+      { fields: ["brand"] },
+      { fields: ["category"] },
+    ],
   },
 );
 
-// Supports the public catalogue search without collection scans.
-productSchema.index({ name: "text", brand: "text", category: "text" });
-productSchema.index({ createdAt: -1, _id: -1 });
-
-const ProductModel = mongoose.model("ProductModel", productSchema);
-
 export default ProductModel;
+
+/*import { DataTypes, Model } from "sequelize";
+import { sequelize } from "#config/db.config.js";
+class ProductModel extends Model {}
+ProductModel.init(
+  {
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    user: { type: DataTypes.UUID, allowNull: false },
+    name: { type: DataTypes.STRING, allowNull: false },
+    price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    description: { type: DataTypes.TEXT, allowNull: false },
+    image: { type: DataTypes.STRING, allowNull: false },
+    brand: { type: DataTypes.STRING, allowNull: false },
+    category: { type: DataTypes.STRING, allowNull: false },
+    countInStock: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    rating: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
+    numReviews: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    content: { type: DataTypes.TEXT, allowNull: false },
+  },
+  {
+    sequelize,
+    modelName: "ProductModel",
+    tableName: "products",
+    timestamps: true,
+    indexes: [
+      { fields: ["createdAt"] },
+      { fields: ["name"] },
+      { fields: ["brand"] },
+      { fields: ["category"] },
+    ],
+  },
+);
+export default ProductModel;*/

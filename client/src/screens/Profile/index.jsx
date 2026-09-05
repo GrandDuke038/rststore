@@ -4,9 +4,8 @@ import { toast } from "react-toastify";
 
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { setCredentials } from "@slices/authSlice";
-import { useGetMyOrdersQuery } from "@slices/orderApiSlice";
-import { useProfileMutation } from "@slices/userApiSlice";
+import { listMyOrders } from "@actions/orderActions";
+import { updateUserProfile } from "@actions/userActions";
 import { Link } from "react-router-dom";
 
 const ProfileScreen = () => {
@@ -16,16 +15,18 @@ const ProfileScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const dispatch = useDispatch();
-  const { userInfo } = useSelector((state) => state.auth);
-  const [updateProfile, { isLoading: loadingUpdateProfile }] =
-    useProfileMutation();
-
-  const {
-    data,
-    isLoading: loadingOrders,
-    error: errorOrders,
-  } = useGetMyOrdersQuery();
+  const { userInfo } = useSelector((state) => state.userLogin);
+  const profileRequest = useSelector((state) => state.userUpdateProfile);
+  const ordersRequest = useSelector((state) => state.orderMyList);
+  const loadingUpdateProfile = profileRequest.loading;
+  const data = ordersRequest;
+  const loadingOrders = ordersRequest.loading;
+  const errorOrders = ordersRequest?.error;
   const orders = data?.orders || [];
+
+  useEffect(() => {
+    dispatch(listMyOrders());
+  }, [dispatch]);
 
   useEffect(() => {
     if (userInfo) {
@@ -41,12 +42,11 @@ const ProfileScreen = () => {
       toast.error("Passwords do not match");
     } else {
       try {
-        const response = await updateProfile({
+        await dispatch(updateUserProfile({
           name,
           email,
           password,
-        }).unwrap();
-        dispatch(setCredentials(response));
+        }));
         toast.success("Profile updated");
       } catch (error) {
         toast.error(error?.data?.message || error?.message);

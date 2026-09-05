@@ -1,4 +1,4 @@
-import { addToCart, removeFromCart } from "@slices/cartSlice";
+import { addToCart, removeFromCart } from "@actions/cartActions";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -13,8 +13,8 @@ const CartScreen = () => {
 
   const cart = useSelector((state) => state.cart);
   const { cartItems } = cart;
-  const handleAddToCart = (product, qty) => {
-    dispatch(addToCart({ ...product, qty }));
+  const handleAddToCart = (productId, qty) => {
+    dispatch(addToCart(productId, qty));
     navigate("/cart");
   };
   const handleRemoveFromCart = (productId) => {

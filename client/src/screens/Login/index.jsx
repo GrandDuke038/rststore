@@ -1,5 +1,4 @@
-import { setCredentials } from "@slices/authSlice";
-import { useLoginMutation } from "@slices/userApiSlice";
+import { login } from "@actions/userActions";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -16,8 +15,8 @@ const LoginScreen = () => {
   const sp = new URLSearchParams(search);
   const redirect = sp.get("redirect") || "/";
 
-  const [login, { isLoading }] = useLoginMutation();
-  const { userInfo } = useSelector((state) => state.auth);
+  const isLoading = useSelector((state) => state.userLogin.loading);
+  const { userInfo } = useSelector((state) => state.userLogin);
   useEffect(() => {
     if (userInfo) {
       navigate(redirect);
@@ -27,8 +26,7 @@ const LoginScreen = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await login({ email, password }).unwrap();
-      dispatch(setCredentials({ ...response }));
+      await dispatch(login(email, password));
       navigate(redirect);
     } catch (error) {
       console.error(error);

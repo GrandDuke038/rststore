@@ -1,66 +1,54 @@
+import { Op, fn, col } from "sequelize";
+
 import ProductModel from "#models/product.model.js";
 import ReviewModel from "#models/review.model.js";
-/**
- * @desc		Fetch all products
- * @route		GET /api/v1/products
- * @access	Public
- */
 
 const getProducts = async (req, res) => {
   const pageSize = 10;
   const page = Math.max(Number(req.query.pageNumber) || 1, 1);
-  const cursor = req.query.cursor;
-  const baseFilter = req.query.keyword
-    ? { $text: { $search: req.query.keyword } }
+  const where = req.query.keyword
+    ? {
+        [Op.or]: ["name", "brand", "category"].map((field) => ({
+          [field]: { [Op.like]: `%${req.query.keyword}%` },
+        })),
+      }
     : {};
-  const filter = { ...baseFilter };
-
-  if (cursor) filter._id = { $lt: cursor };
-
-  const projection = "name price image rating numReviews countInStock category brand";
-  const [products, count] = await Promise.all([
-    ProductModel.find(filter)
-      .select(projection)
-      .sort({ _id: -1 })
-      .skip(cursor ? 0 : (page - 1) * pageSize)
-      .limit(pageSize + 1)
-      .lean(),
-    ProductModel.countDocuments(baseFilter),
-  ]);
-
-  const hasMore = products.length > pageSize;
-  if (hasMore) products.pop();
-
+  if (req.query.cursor) where._id = { [Op.lt]: req.query.cursor };
+  const { rows, count } = await ProductModel.findAndCountAll({
+    where,
+    attributes: [
+      "_id",
+      "name",
+      "price",
+      "image",
+      "rating",
+      "numReviews",
+      "countInStock",
+      "category",
+      "brand",
+    ],
+    order: [["_id", "DESC"]],
+    offset: req.query.cursor ? 0 : (page - 1) * pageSize,
+    limit: pageSize + 1,
+  });
+  const hasMore = rows.length > pageSize;
+  if (hasMore) rows.pop();
   res.json({
-    products,
+    products: rows,
     page,
     pages: Math.ceil(count / pageSize),
-    nextCursor: hasMore ? products.at(-1)._id : null,
+    nextCursor: hasMore ? rows.at(-1)._id : null,
   });
 };
 
-/**
- * @desc		Fetch single product
- * @route		GET /api/v1/products/:id
- * @access	Public
- */
 const getProductsById = async (req, res) => {
-  const product = await ProductModel.findById(req.params.id).lean();
-  if (product) {
-    res.json(product);
-  } else {
-    res.status(404).json({ message: "Product not found" });
-  }
+  const product = await ProductModel.findByPk(req.params.id);
+  if (!product) return res.status(404).json({ message: "Product not found" });
+  res.json(product);
 };
 
-/**
- * @desc Create product
- * @desc POST/api/v1/products
- * @access Private/Admin
- */
-
 const createProduct = async (req, res) => {
-  const product = new ProductModel({
+  const product = await ProductModel.create({
     name: "Sample name",
     price: 0,
     user: req.user._id,
@@ -72,120 +60,80 @@ const createProduct = async (req, res) => {
     description: "Sample description",
     content: "Sample content",
   });
-
-  const createdProduct = await product.save();
-  res.status(201).json(createdProduct);
+  res.status(201).json(product);
 };
-
-/**
- * @desc		Update product
- * @route		PUT /api/v1/products/:id
- * @access	Private/Admin
- */
 const updateProduct = async (req, res) => {
-  const {
-    name,
-    price,
-    description,
-    image,
-    brand,
-    category,
-    countInStock,
-    content,
-  } = req.body;
-
-  const product = await ProductModel.findById(req.params.id);
-
-  if (product) {
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.image = image;
-
-    product.brand = brand;
-    product.category = category;
-    product.countInStock = countInStock;
-    product.content = content;
-
-    const updatedProduct = await product.save();
-    res.json(updatedProduct);
-  } else {
-    res.status(404);
-    throw new Error("Product not found");
-  }
-};
-
-/**
- * @desc		Delete product
- * @route		DELETE /api/v1/products/:id
- * @access	Private/Admin
- */
-const deleteProduct = async (req, res) => {
-  const product = await ProductModel.findById(req.params.id);
-
-  if (product) {
-    await ProductModel.deleteOne({ _id: req.params.id });
-    res.status(200).json({ message: "Product deleted" });
-  } else {
-    res.status(404);
-    throw new Error("Product not found");
-  }
-};
-
-/**
- * @desc Create a new review
- * POST /api/v1/products/:id/reviews
- * @access Private
- */
-const createProductReview = async (req, res) => {
-  const { rating, comment } = req.body;
-
-  const product = await ProductModel.exists({ _id: req.params.id });
+  const product = await ProductModel.findByPk(req.params.id);
   if (!product) {
     res.status(404);
     throw new Error("Product not found");
   }
-
+  for (const key of [
+    "name",
+    "price",
+    "description",
+    "image",
+    "brand",
+    "category",
+    "countInStock",
+    "content",
+  ])
+    product[key] = req.body[key];
+  await product.save();
+  res.json(product);
+};
+const deleteProduct = async (req, res) => {
+  const product = await ProductModel.findByPk(req.params.id);
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+  await product.destroy();
+  res.json({ message: "Product deleted" });
+};
+const createProductReview = async (req, res) => {
+  const product = await ProductModel.findByPk(req.params.id);
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
   try {
     await ReviewModel.create({
-      product: req.params.id,
+      product: product._id,
       user: req.user._id,
       name: req.user.name,
-      rating: Number(rating),
-      comment,
+      rating: Number(req.body.rating),
+      comment: req.body.comment,
     });
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.name === "SequelizeUniqueConstraintError") {
       res.status(400);
       throw new Error("Product already reviewed");
     }
     throw error;
   }
-
-  const [summary] = await ReviewModel.aggregate([
-    { $match: { product: product._id } },
-    { $group: { _id: "$product", rating: { $avg: "$rating" }, numReviews: { $sum: 1 } } },
-  ]);
-  await ProductModel.updateOne(
-    { _id: product._id },
-    { $set: { rating: summary.rating, numReviews: summary.numReviews } },
-  );
+  const summary = await ReviewModel.findOne({
+    where: { product: product._id },
+    attributes: [
+      [fn("AVG", col("rating")), "rating"],
+      [fn("COUNT", col("_id")), "numReviews"],
+    ],
+    raw: true,
+  });
+  await product.update({
+    rating: Number(summary.rating),
+    numReviews: Number(summary.numReviews),
+  });
   res.status(201).json({ message: "Review added" });
 };
-
-/**
- * @desc    Fetch reviews for a product
- * @route   GET /api/v1/products/:id/reviews
- * @access  Public
- */
-const getProductReviews = async (req, res) => {
-  const reviews = await ReviewModel.find({ product: req.params.id })
-    .select("name rating comment createdAt isDemo")
-    .sort({ createdAt: -1 })
-    .lean();
-
-  res.json(reviews);
-};
+const getProductReviews = async (req, res) =>
+  res.json(
+    await ReviewModel.findAll({
+      where: { product: req.params.id },
+      attributes: ["_id", "name", "rating", "comment", "createdAt", "isDemo"],
+      order: [["createdAt", "DESC"]],
+    }),
+  );
 export {
   createProduct,
   getProducts,

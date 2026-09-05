@@ -5,27 +5,31 @@ import { toast } from "react-toastify";
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
 import {
-  useGetUserDetailsQuery,
-  useUpdateUserMutation,
-} from "@slices/userApiSlice";
+  getUserDetails,
+  updateUser,
+} from "@actions/userActions";
+import { useDispatch, useSelector } from "react-redux";
 
 const UserEditScreen = () => {
   const { id: userId } = useParams();
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const {
-    data: user,
-    error,
-    isLoading,
-    refetch,
-  } = useGetUserDetailsQuery(userId);
+  const userRequest = useSelector((state) => state.userDetails);
+  const updateRequest = useSelector((state) => state.userUpdate);
+  const user = userRequest.user;
+  const error = userRequest.error;
+  const isLoading = userRequest.loading;
+  const loadingUpdate = updateRequest.loading;
 
-  const [updateUser, { isLoading: loadingUpdate }] = useUpdateUserMutation();
+  useEffect(() => {
+    dispatch(getUserDetails(userId));
+  }, [dispatch, userId]);
 
   useEffect(() => {
     if (user) {
@@ -39,9 +43,8 @@ const UserEditScreen = () => {
     e.preventDefault();
 
     try {
-      await updateUser({ userId, name, email, isAdmin });
+      await dispatch(updateUser({ userId, name, email, isAdmin }));
       toast.success("User updated successfully");
-      refetch();
       navigate(`/admin/user-list`);
     } catch (error) {
       toast.error(error?.data?.message || error?.message);

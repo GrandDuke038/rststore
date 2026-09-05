@@ -9,7 +9,10 @@ const protect = async (req, res, next) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await UserModel.findById(decoded.id).select("-password");
+      req.user = await UserModel.findByPk(decoded.id, {
+        attributes: { exclude: ["password"] },
+      });
+      if (!req.user) throw new Error("User no longer exists");
       next();
     } catch (error) {
       console.log(error);
