@@ -21,17 +21,17 @@ const SupportTicketScreen = () => {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.userLogin);
   const isAdmin = userInfo?.isAdmin;
-  const ticketRequest = useSelector((state) => state.api.requests.ticket);
+  const ticketRequest = useSelector((state) => state.supportTicketDetails);
   const usersData = useSelector((state) => state.userList);
   const ticket = ticketRequest?.data;
-  const isLoading = !ticketRequest || ticketRequest.isLoading;
+  const isLoading = !ticketRequest || ticketRequest.loading;
   const error = ticketRequest?.error;
   const [reply, setReply] = useState("");
   const [status, setStatus] = useState("");
   const [assignee, setAssignee] = useState("");
-  const isReplying = Boolean(useSelector((state) => state.api.requests.replyTicket?.isLoading));
-  const isUpdatingStatus = Boolean(useSelector((state) => state.api.requests.ticketStatus?.isLoading));
-  const isAssigning = Boolean(useSelector((state) => state.api.requests.ticketAssignment?.isLoading));
+  const isReplying = Boolean(useSelector((state) => state.supportTicketReply.loading));
+  const isUpdatingStatus = Boolean(useSelector((state) => state.supportTicketStatus.loading));
+  const isAssigning = Boolean(useSelector((state) => state.supportTicketAssign.loading));
   const admins = (usersData?.users || []).filter((user) => user.isAdmin);
 
   useEffect(() => {
@@ -80,7 +80,7 @@ const SupportTicketScreen = () => {
   };
 
   if (isLoading) return <Loader />;
-  if (error) return <div className="mx-auto max-w-4xl px-4 pt-24"><Alert type="error">{error?.data?.message || error?.message}</Alert></div>;
+  if (error) return <div className="mx-auto max-w-4xl px-4 pt-24"><Alert type="error">{error?.data?.message || error?.message || error}</Alert></div>;
   if (!ticket) return null;
 
   return <div className="bg-white"><div className="mx-auto max-w-4xl px-4 pb-24 pt-10 sm:px-6 lg:px-8">

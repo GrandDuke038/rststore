@@ -30,9 +30,9 @@ const AdminSupportScreen = () => {
     [filters],
   );
   const dispatch = useDispatch();
-  const request = useSelector((state) => state.api.requests.tickets);
+  const request = useSelector((state) => state.supportTicketsList);
   const data = request?.data;
-  const isLoading = !request || request.isLoading;
+  const isLoading = !request || request.loading;
   const error = request?.error;
   const tickets = data?.tickets || [];
   const setFilter = (name, value) => setFilters({ ...filters, [name]: value }); //[name] is a computed property name
@@ -90,7 +90,7 @@ const AdminSupportScreen = () => {
         {isLoading ? (
           <Loader />
         ) : error ? (
-          <Alert type="error">{error?.data?.message || error?.message}</Alert>
+          <Alert type="error">{error?.data?.message || error?.message || error}</Alert>
         ) : tickets.length === 0 ? (
           <div className="mt-8 rounded-xl border border-dashed border-slate-300 p-10 text-center text-slate-500">
             No support tickets match these filters.

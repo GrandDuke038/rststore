@@ -39,12 +39,12 @@ const SupportScreen = () => {
     priority: "medium",
     message: "",
   });
-  const ticketsRequest = useSelector((state) => state.api.requests.myTickets);
-  const createRequest = useSelector((state) => state.api.requests.createTicket);
+  const ticketsRequest = useSelector((state) => state.supportMyTickets);
+  const createRequest = useSelector((state) => state.supportTicketCreate);
   const data = ticketsRequest?.data;
-  const isLoading = !ticketsRequest || ticketsRequest.isLoading;
+  const isLoading = !ticketsRequest || ticketsRequest.loading;
   const error = ticketsRequest?.error;
-  const isCreating = Boolean(createRequest?.isLoading);
+  const isCreating = Boolean(createRequest?.loading);
 
   const tickets = data?.tickets || [];
 
@@ -187,7 +187,7 @@ const SupportScreen = () => {
               <Loader />
             ) : error ? (
               <Alert type="error">
-                {error?.data?.message || error?.message}
+                {error?.data?.message || error?.message || error}
               </Alert>
             ) : tickets.length === 0 ? (
               <div className="mt-6 rounded-xl border border-dashed border-slate-300 p-10 text-center text-slate-500">

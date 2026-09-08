@@ -1,5 +1,4 @@
 import axios from "axios";
-import { requestFail, requestStart, requestSuccess } from "./apiActions";
 import {
   PRODUCT_CREATE_FAIL,
   PRODUCT_CREATE_REQUEST,
@@ -124,15 +123,11 @@ export const deleteProduct = (id) => async (dispatch) => {
   }
 };
 
-// Uploads remain in the shared API reducer because they are not product state.
-export const uploadProductImage = (formData) => async (dispatch) => {
-  dispatch(requestStart("uploadImage"));
+export const uploadProductImage = (formData) => async () => {
   try {
     const { data } = await axios.post("/api/v1/uploads", formData);
-    dispatch(requestSuccess("uploadImage", data));
     return data;
   } catch (error) {
-    dispatch(requestFail("uploadImage", error));
     throw error.response?.data || error;
   }
 };

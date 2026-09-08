@@ -18,7 +18,7 @@ const initialState = updateCart({
     ? JSON.parse(localStorage.getItem("paymentMethod"))
     : "paypal",
 });
-export default function cartReducer(state = initialState, action) {
+export function cartReducer(state = initialState, action) {
   let nextState;
   switch (action.type) {
     case CART_ADD_ITEM: {
@@ -52,3 +52,5 @@ export default function cartReducer(state = initialState, action) {
       return state;
   }
 }
+
+export default cartReducer;
