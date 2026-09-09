@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Alert from "@components/Alert";
-import Loader from "@components/Loader";
 import { listMyOrders } from "@actions/orderActions";
 import { updateUserProfile } from "@actions/userActions";
-import { Link } from "react-router-dom";
+import Alert from "@components/Alert";
+import Loader from "@components/Loader";
 
 const ProfileScreen = () => {
   const [name, setName] = useState("");
@@ -15,14 +15,17 @@ const ProfileScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const dispatch = useDispatch();
-  const { userInfo } = useSelector((state) => state.userLogin);
-  const profileRequest = useSelector((state) => state.userUpdateProfile);
-  const ordersRequest = useSelector((state) => state.orderMyList);
-  const loadingUpdateProfile = profileRequest.loading;
-  const data = ordersRequest;
-  const loadingOrders = ordersRequest.loading;
-  const errorOrders = ordersRequest?.error;
-  const orders = data?.orders || [];
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+  const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
+  const orderMyList = useSelector((state) => state.orderMyList);
+  const { loading: loadingUpdateProfile, error: updateProfileError } =
+    userUpdateProfile;
+  const {
+    loading: loadingOrders,
+    error: errorOrders,
+    orders = [],
+  } = orderMyList;
 
   useEffect(() => {
     dispatch(listMyOrders());
@@ -41,16 +44,15 @@ const ProfileScreen = () => {
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
     } else {
-      try {
-        await dispatch(updateUserProfile({
+      const updatedUser = await dispatch(
+        updateUserProfile({
           name,
           email,
           password,
-        }));
-        toast.success("Profile updated");
-      } catch (error) {
-        toast.error(error?.data?.message || error?.message);
-      }
+        }),
+      );
+      if (!updatedUser) return;
+      toast.success("Profile updated");
     }
   };
 
@@ -163,9 +165,11 @@ const ProfileScreen = () => {
 
         {loadingOrders ? (
           <Loader />
-        ) : errorOrders ? (
+        ) : errorOrders || updateProfileError ? (
           <Alert type="error">
-            {errorOrders?.data?.message || errorOrders?.message}
+            {errorOrders?.data?.message ||
+              errorOrders?.message ||
+              updateProfileError}
           </Alert>
         ) : (
           <div className="mt-16">

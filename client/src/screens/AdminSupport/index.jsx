@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+import { getAllTickets } from "@actions/supportActions";
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { getAllTickets } from "@actions/supportActions";
-import { useDispatch, useSelector } from "react-redux";
 
 const categories = [
   "Order Issue",
@@ -30,11 +30,11 @@ const AdminSupportScreen = () => {
     [filters],
   );
   const dispatch = useDispatch();
-  const request = useSelector((state) => state.supportTicketsList);
-  const data = request?.data;
-  const isLoading = !request || request.loading;
-  const error = request?.error;
-  const tickets = data?.tickets || [];
+  const supportTicketsList = useSelector((state) => state.supportTicketsList);
+  const ticketsData = supportTicketsList?.tickets;
+  const isLoading = !supportTicketsList || supportTicketsList.loading;
+  const error = supportTicketsList?.error;
+  const tickets = ticketsData?.tickets || [];
   const setFilter = (name, value) => setFilters({ ...filters, [name]: value }); //[name] is a computed property name
 
   useEffect(() => {

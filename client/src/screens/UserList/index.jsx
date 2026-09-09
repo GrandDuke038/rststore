@@ -1,23 +1,20 @@
-import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useEffect, useState } from "react";
 
+import { deleteUser, listUsers } from "@actions/userActions";
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { deleteUser, listUsers } from "@actions/userActions";
-import { useDispatch, useSelector } from "react-redux";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 
 const UserListScreen = () => {
   const [page, setPage] = useState(1);
   const dispatch = useDispatch();
-  const request = useSelector((state) => state.userList);
-  const deleteRequest = useSelector((state) => state.userDelete);
-  const data = request;
-  const error = request.error;
-  const isLoading = request.loading;
-  const users = data?.users || [];
-  const loadingDelete = deleteRequest.loading;
+  const userList = useSelector((state) => state.userList);
+  const userDelete = useSelector((state) => state.userDelete);
+  const { users = [], pages, loading: isLoading, error } = userList;
+  const { loading: loadingDelete, error: deleteError } = userDelete;
 
   useEffect(() => {
     dispatch(listUsers(page));
@@ -25,13 +22,10 @@ const UserListScreen = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
-      try {
-        await dispatch(deleteUser(id));
-        toast.success("User deleted successfully");
-        dispatch(listUsers(page));
-      } catch (error) {
-        toast.error(error?.data?.message || error?.message);
-      }
+      const deleted = await dispatch(deleteUser(id));
+      if (!deleted) return;
+      toast.success("User deleted successfully");
+      dispatch(listUsers(page));
     }
   };
 
@@ -46,8 +40,8 @@ const UserListScreen = () => {
 
         {isLoading ? (
           <Loader />
-        ) : error ? (
-          <Alert type="error">{error?.data?.message || error?.message}</Alert>
+        ) : error || deleteError ? (
+          <Alert type="error">{error?.data?.message || error?.message || deleteError}</Alert>
         ) : (
           <div className="mt-8 flow-root">
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -129,10 +123,10 @@ const UserListScreen = () => {
             </div>
           </div>
         )}
-        {data?.pages > 1 && (
+        {pages > 1 && (
           <div className="mt-6 flex justify-end gap-3">
             <button disabled={page === 1} onClick={() => setPage(page - 1)} type="button">Previous</button>
-            <button disabled={page === data.pages} onClick={() => setPage(page + 1)} type="button">Next</button>
+            <button disabled={page === pages} onClick={() => setPage(page + 1)} type="button">Next</button>
           </div>
         )}
       </div>

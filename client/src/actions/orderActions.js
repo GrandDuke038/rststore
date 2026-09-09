@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import {
   ORDER_CREATE_FAIL,
   ORDER_CREATE_REQUEST,
@@ -20,86 +21,158 @@ import {
   ORDER_PAY_SUCCESS,
 } from "../constants/orderConstants";
 
-const errorMessage = (error) => error.response?.data?.message || error.message;
-
-// Authentication is handled by the server's httpOnly session cookie, so these
-// thunks do not add an Authorization header from Redux state.
-export const createOrder = (order) => async (dispatch) => {
+export const createOrder = (order) => async (dispatch, getState) => {
   try {
     dispatch({ type: ORDER_CREATE_REQUEST });
-    const { data } = await axios.post("/api/v1/orders", order);
+    const {
+      userLogin: { userInfo },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    const { data } = await axios.post("/api/v1/orders", order, config);
     dispatch({ type: ORDER_CREATE_SUCCESS, payload: data });
     return data;
   } catch (error) {
-    dispatch({ type: ORDER_CREATE_FAIL, payload: errorMessage(error) });
-    throw error;
+    dispatch({
+      type: ORDER_CREATE_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
   }
 };
 
-export const getOrderDetails = (id) => async (dispatch) => {
+export const getOrderDetails = (id) => async (dispatch, getState) => {
   try {
     dispatch({ type: ORDER_DETAILS_REQUEST });
-    const { data } = await axios.get(`/api/v1/orders/${id}`);
+    const {
+      userLogin: { userInfo },
+    } = getState();
+    const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+    const { data } = await axios.get(`/api/v1/orders/${id}`, config);
     dispatch({ type: ORDER_DETAILS_SUCCESS, payload: data });
     return data;
   } catch (error) {
-    dispatch({ type: ORDER_DETAILS_FAIL, payload: errorMessage(error) });
-    throw error;
+    dispatch({
+      type: ORDER_DETAILS_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
   }
 };
 
-export const payOrder = (orderId, paymentResult) => async (dispatch) => {
-  try {
-    dispatch({ type: ORDER_PAY_REQUEST });
-    const { data } = await axios.put(
-      `/api/v1/orders/${orderId}/pay`,
-      paymentResult,
-    );
-    dispatch({ type: ORDER_PAY_SUCCESS, payload: data });
-    return data;
-  } catch (error) {
-    dispatch({ type: ORDER_PAY_FAIL, payload: errorMessage(error) });
-    throw error;
-  }
-};
+export const payOrder =
+  (orderId, paymentResult) => async (dispatch, getState) => {
+    try {
+      dispatch({ type: ORDER_PAY_REQUEST });
+      const {
+        userLogin: { userInfo },
+      } = getState();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+          "Content-Type": "application/json",
+        },
+      };
+      const { data } = await axios.put(
+        `/api/v1/orders/${orderId}/pay`,
+        paymentResult,
+        config,
+      );
+      dispatch({ type: ORDER_PAY_SUCCESS, payload: data });
+      return data;
+    } catch (error) {
+      dispatch({
+        type: ORDER_PAY_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
 
-export const listMyOrders = () => async (dispatch) => {
+export const listMyOrders = () => async (dispatch, getState) => {
   try {
     dispatch({ type: ORDER_MY_LIST_REQUEST });
-    const { data } = await axios.get("/api/v1/orders/mine");
+    const {
+      userLogin: { userInfo },
+    } = getState();
+    const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+    const { data } = await axios.get("/api/v1/orders/mine", config);
     dispatch({ type: ORDER_MY_LIST_SUCCESS, payload: data });
     return data;
   } catch (error) {
-    dispatch({ type: ORDER_MY_LIST_FAIL, payload: errorMessage(error) });
-    throw error;
+    dispatch({
+      type: ORDER_MY_LIST_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
   }
 };
 
 export const listOrders =
   (page = 1) =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
     try {
       dispatch({ type: ORDER_LIST_REQUEST });
-      const { data } = await axios.get("/api/v1/orders", {
+      const {
+        userLogin: { userInfo },
+      } = getState();
+      const config = {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
         params: { pageNumber: page },
-      });
+      };
+      const { data } = await axios.get("/api/v1/orders", config);
       dispatch({ type: ORDER_LIST_SUCCESS, payload: data });
       return data;
     } catch (error) {
-      dispatch({ type: ORDER_LIST_FAIL, payload: errorMessage(error) });
-      throw error;
+      dispatch({
+        type: ORDER_LIST_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
     }
   };
 
-export const deliverOrder = (orderId) => async (dispatch) => {
+export const deliverOrder = (orderId) => async (dispatch, getState) => {
   try {
     dispatch({ type: ORDER_DELIVER_REQUEST });
-    const { data } = await axios.put(`/api/v1/orders/${orderId}/deliver`, {});
+    const {
+      userLogin: { userInfo },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    const { data } = await axios.put(
+      `/api/v1/orders/${orderId}/deliver`,
+      {},
+      config,
+    );
     dispatch({ type: ORDER_DELIVER_SUCCESS, payload: data });
     return data;
   } catch (error) {
-    dispatch({ type: ORDER_DELIVER_FAIL, payload: errorMessage(error) });
-    throw error;
+    dispatch({
+      type: ORDER_DELIVER_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
   }
 };
 

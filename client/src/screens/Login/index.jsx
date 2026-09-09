@@ -1,8 +1,9 @@
-import { login } from "@actions/userActions";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+
+import { login } from "@actions/userActions";
+import Alert from "@components/Alert";
 
 const LoginScreen = () => {
   const dispatch = useDispatch();
@@ -15,23 +16,17 @@ const LoginScreen = () => {
   const sp = new URLSearchParams(search);
   const redirect = sp.get("redirect") || "/";
 
-  const isLoading = useSelector((state) => state.userLogin.loading);
-  const { userInfo } = useSelector((state) => state.userLogin);
+  const userLogin = useSelector((state) => state.userLogin);
+  const { loading: isLoading, error, userInfo } = userLogin;
   useEffect(() => {
     if (userInfo) {
       navigate(redirect);
     }
   }, [navigate, redirect, userInfo]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await dispatch(login(email, password));
-      navigate(redirect);
-    } catch (error) {
-      console.error(error);
-      toast.error(error?.data?.message);
-    }
+    dispatch(login(email, password));
   };
   return (
     <div className="mt-10">
@@ -43,6 +38,7 @@ const LoginScreen = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          {error && <Alert type="error">{error}</Alert>}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label

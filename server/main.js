@@ -1,18 +1,17 @@
-import express from "express";
 import colors from "colors";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+import express from "express";
 import morgan from "morgan";
 import path from "path";
 
-import dotenv from "dotenv";
-
 import connectDB from "#config/db.config.js";
-import productRoutes from "#routes/product.routes.js";
-import { errorHandler } from "#middlewares/error.middleware.js";
-import userRoutes from "#routes/user.routes.js";
-import uploadRoutes from "#routes/upload.routes.js";
-import cookieParser from "cookie-parser";
+import { errorHandler, notFound } from "#middlewares/error.middleware.js";
 import orderRoutes from "#routes/order.routes.js";
+import productRoutes from "#routes/product.routes.js";
 import supportRoutes from "#routes/support.routes.js";
+import uploadRoutes from "#routes/upload.routes.js";
+import userRoutes from "#routes/user.routes.js";
 import { seedDemoDataIfDatabaseEmpty } from "#utils/seed-demo-data.utils.js";
 
 dotenv.config();
@@ -58,6 +57,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+app.use(notFound);
 app.use(errorHandler);
 
 const startServer = async () => {

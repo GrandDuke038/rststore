@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+import { saveShippingAddress } from "@actions/cartActions";
+import CheckoutSteps from "@components/CheckoutSteps";
 import SelectInput from "@components/FormInput/SelectInput";
 import TextInput from "@components/FormInput/TextInput";
 import countries from "@data/countries";
-import { saveShippingAddress } from "@actions/cartActions";
-import CheckoutSteps from "@components/CheckoutSteps";
 
 const ShippingScreen = () => {
   const dispatch = useDispatch();

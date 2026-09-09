@@ -1,9 +1,10 @@
+import asyncHandler from "express-async-handler";
 import { Op, fn, col } from "sequelize";
 
 import ProductModel from "#models/product.model.js";
 import ReviewModel from "#models/review.model.js";
 
-const getProducts = async (req, res) => {
+const getProducts = asyncHandler(async (req, res) => {
   const pageSize = 10;
   const page = Math.max(Number(req.query.pageNumber) || 1, 1);
   const where = req.query.keyword
@@ -39,15 +40,18 @@ const getProducts = async (req, res) => {
     pages: Math.ceil(count / pageSize),
     nextCursor: hasMore ? rows.at(-1)._id : null,
   });
-};
+});
 
-const getProductsById = async (req, res) => {
+const getProductsById = asyncHandler(async (req, res) => {
   const product = await ProductModel.findByPk(req.params.id);
-  if (!product) return res.status(404).json({ message: "Product not found" });
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
   res.json(product);
-};
+});
 
-const createProduct = async (req, res) => {
+const createProduct = asyncHandler(async (req, res) => {
   const product = await ProductModel.create({
     name: "Sample name",
     price: 0,
@@ -61,8 +65,8 @@ const createProduct = async (req, res) => {
     content: "Sample content",
   });
   res.status(201).json(product);
-};
-const updateProduct = async (req, res) => {
+});
+const updateProduct = asyncHandler(async (req, res) => {
   const product = await ProductModel.findByPk(req.params.id);
   if (!product) {
     res.status(404);
@@ -81,8 +85,8 @@ const updateProduct = async (req, res) => {
     product[key] = req.body[key];
   await product.save();
   res.json(product);
-};
-const deleteProduct = async (req, res) => {
+});
+const deleteProduct = asyncHandler(async (req, res) => {
   const product = await ProductModel.findByPk(req.params.id);
   if (!product) {
     res.status(404);
@@ -90,8 +94,8 @@ const deleteProduct = async (req, res) => {
   }
   await product.destroy();
   res.json({ message: "Product deleted" });
-};
-const createProductReview = async (req, res) => {
+});
+const createProductReview = asyncHandler(async (req, res) => {
   const product = await ProductModel.findByPk(req.params.id);
   if (!product) {
     res.status(404);
@@ -125,15 +129,15 @@ const createProductReview = async (req, res) => {
     numReviews: Number(summary.numReviews),
   });
   res.status(201).json({ message: "Review added" });
-};
-const getProductReviews = async (req, res) =>
+});
+const getProductReviews = asyncHandler(async (req, res) =>
   res.json(
     await ReviewModel.findAll({
       where: { product: req.params.id },
       attributes: ["_id", "name", "rating", "comment", "createdAt", "isDemo"],
       order: [["createdAt", "DESC"]],
     }),
-  );
+  ));
 export {
   createProduct,
   getProducts,

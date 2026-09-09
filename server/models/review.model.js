@@ -1,5 +1,7 @@
 import { DataTypes } from "sequelize";
+
 import { sequelize } from "#config/db.config.js";
+
 const ReviewModel = sequelize.define(
   "ReviewModel",
   {

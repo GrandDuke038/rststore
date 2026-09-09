@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import { getUserDetails, updateUser } from "@actions/userActions";
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import {
-  getUserDetails,
-  updateUser,
-} from "@actions/userActions";
-import { useDispatch, useSelector } from "react-redux";
 
 const UserEditScreen = () => {
   const { id: userId } = useParams();
@@ -20,12 +17,11 @@ const UserEditScreen = () => {
   const [email, setEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const userRequest = useSelector((state) => state.userDetails);
-  const updateRequest = useSelector((state) => state.userUpdate);
-  const user = userRequest.user;
-  const error = userRequest.error;
-  const isLoading = userRequest.loading;
-  const loadingUpdate = updateRequest.loading;
+  const userDetails = useSelector((state) => state.userDetails);
+  const { user, loading: isLoading, error } = userDetails;
+
+  const userUpdate = useSelector((state) => state.userUpdate);
+  const { loading: loadingUpdate, error: updateError } = userUpdate;
 
   useEffect(() => {
     dispatch(getUserDetails(userId));
@@ -42,13 +38,12 @@ const UserEditScreen = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      await dispatch(updateUser({ userId, name, email, isAdmin }));
-      toast.success("User updated successfully");
-      navigate(`/admin/user-list`);
-    } catch (error) {
-      toast.error(error?.data?.message || error?.message);
-    }
+    const updatedUser = await dispatch(
+      updateUser({ userId, name, email, isAdmin }),
+    );
+    if (!updatedUser) return;
+    toast.success("User updated successfully");
+    navigate(`/admin/user-list`);
   };
 
   return (
@@ -60,8 +55,10 @@ const UserEditScreen = () => {
 
         {isLoading ? (
           <Loader />
-        ) : error ? (
-          <Alert type="error">{error?.data?.message || error?.message}</Alert>
+        ) : error || updateError ? (
+          <Alert type="error">
+            {error?.data?.message || error?.message || updateError}
+          </Alert>
         ) : (
           <form className="mx-auto mt-20 max-w-3xl" onSubmit={handleSubmit}>
             <div className="space-y-12">

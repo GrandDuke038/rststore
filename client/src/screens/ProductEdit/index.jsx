@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Alert from "@components/Alert";
-import Loader from "@components/Loader";
 import {
   getProductDetails,
   updateProduct,
   uploadProductImage,
 } from "@actions/productActions";
-import { useDispatch, useSelector } from "react-redux";
+import Alert from "@components/Alert";
+import Loader from "@components/Loader";
 
 const ProductEditScreen = () => {
   const { id: productId } = useParams();
@@ -25,12 +25,10 @@ const ProductEditScreen = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const productRequest = useSelector((state) => state.productDetails);
-  const updateRequest = useSelector((state) => state.productUpdate);
-  const product = productRequest.product;
-  const isLoading = productRequest.loading;
-  const error = productRequest.error;
-  const loadingUpdate = updateRequest.loading;
+  const productDetails = useSelector((state) => state.productDetails);
+  const productUpdate = useSelector((state) => state.productUpdate);
+  const { product, loading: isLoading, error } = productDetails;
+  const { loading: loadingUpdate, error: updateError } = productUpdate;
 
   useEffect(() => {
     dispatch(getProductDetails(productId));
@@ -64,24 +62,18 @@ const ProductEditScreen = () => {
       content,
     };
     const result = await dispatch(updateProduct(updatedProduct));
-    if (result.error) {
-      toast.error(result?.error);
-    } else {
-      toast.success("Product updated successfully");
-      navigate(`/admin/product-list`);
-    }
+    if (!result) return;
+    toast.success("Product updated successfully");
+    navigate(`/admin/product-list`);
   };
 
   const handleUploadFile = async (e) => {
     const formData = new FormData();
     formData.append("image", e.target.files[0]);
-    try {
-      const result = await dispatch(uploadProductImage(formData));
-      toast.success(result.message);
-      setImage(result.image);
-    } catch (error) {
-      toast.error(error?.data?.message || error?.error);
-    }
+    const result = await dispatch(uploadProductImage(formData));
+    if (!result) return;
+    toast.success(result.message);
+    setImage(result.image);
   };
 
   return (
@@ -93,8 +85,8 @@ const ProductEditScreen = () => {
 
         {isLoading ? (
           <Loader />
-        ) : error ? (
-          <Alert type="error">{error}</Alert>
+        ) : error || updateError ? (
+          <Alert type="error">{error || updateError}</Alert>
         ) : (
           <form className="mx-auto mt-20 max-w-3xl" onSubmit={handleSubmit}>
             <div className="space-y-12">

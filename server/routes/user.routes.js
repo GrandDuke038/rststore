@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   authUser,
   deleteUser,
@@ -22,8 +23,8 @@ router
   .put(protect, updateUserProfile);
 router
   .route("/:id")
-  .delete(protect, deleteUser)
-  .get(protect, getUserById)
-  .put(protect, updateUser);
+  .delete(protect, admin, deleteUser)
+  .get(protect, admin, getUserById)
+  .put(protect, admin, updateUser);
 
 export default router;

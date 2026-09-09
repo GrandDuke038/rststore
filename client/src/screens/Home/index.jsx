@@ -1,23 +1,22 @@
-import { listProducts } from "@actions/productActions";
-import ProductCard from "@components/ProductCard";
-import Loader from "@components/Loader";
-import Alert from "@components/Alert";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import Paginate from "@components/Paginate";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+
+import { listProducts } from "@actions/productActions";
+import Alert from "@components/Alert";
+import Loader from "@components/Loader";
+import Paginate from "@components/Paginate";
+import ProductCard from "@components/ProductCard";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 const HomeScreen = () => {
   const { pageNumber, keyword } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
-  const request = useSelector((state) => state.productList);
-  const data = request;
-  const isLoading = request.loading;
-  const isError = Boolean(request.error);
-  const error = request.error;
+  const productList = useSelector((state) => state.productList);
+  const { products = [], pages, page, nextCursor, loading: isLoading, error } = productList;
+  const isError = Boolean(error);
   const cursor = searchParams.get("cursor") || undefined;
 
   useEffect(() => {
@@ -45,16 +44,16 @@ const HomeScreen = () => {
               </h1>
             </div>
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {data.products.map((product) => (
+              {products.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
           </>
         )}
         <Paginate
-          pages={data.pages}
-          page={data.page}
-          nextCursor={data.nextCursor}
+          pages={pages}
+          page={page}
+          nextCursor={nextCursor}
           keyword={keyword}
         />
       </div>

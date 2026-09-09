@@ -1,3 +1,5 @@
+import express from "express";
+
 import {
   getProducts,
   getProductsById,
@@ -7,8 +9,8 @@ import {
   deleteProduct,
   createProductReview,
 } from "#controllers/product.controller.js";
-import express from "express";
 import { admin, protect } from "#middlewares/auth.middleware.js";
+
 const router = express.Router();
 
 router.route("/").get(getProducts).post(protect, admin, createProduct);

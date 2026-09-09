@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
-import CheckoutSteps from "@components/CheckoutSteps";
-import Loader from "@components/Loader/index";
 import { clearCartItems } from "@actions/cartActions";
 import { createOrder } from "@actions/orderActions";
+import Alert from "@components/Alert";
+import CheckoutSteps from "@components/CheckoutSteps";
+import Loader from "@components/Loader/index";
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
@@ -22,11 +22,12 @@ const PlaceOrderScreen = () => {
     }
   }, [cart.shippingAddress, cart.paymentMethod, navigate]);
 
-  const isLoading = useSelector((state) => state.orderCreate.loading);
+  const orderCreate = useSelector((state) => state.orderCreate);
+  const { loading: isLoading, error } = orderCreate;
 
   const handlerPlaceOrder = async () => {
-    try {
-      const response = await dispatch(createOrder({
+    const response = await dispatch(
+      createOrder({
         orderItems: cart.cartItems,
         shippingAddress: cart.shippingAddress,
         paymentMethod: cart.paymentMethod,
@@ -34,14 +35,13 @@ const PlaceOrderScreen = () => {
         shippingPrice: cart.shippingPrice,
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
-      }));
+      }),
+    );
 
-      dispatch(clearCartItems());
+    if (!response) return;
 
-      navigate(`/order/${response._id}`);
-    } catch (error) {
-      toast.error(error?.data?.message);
-    }
+    dispatch(clearCartItems());
+    navigate(`/order/${response._id}`);
   };
 
   return (
@@ -53,6 +53,7 @@ const PlaceOrderScreen = () => {
         <h1 className="mt-10 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Place Order
         </h1>
+        {error && <Alert type="error">{error}</Alert>}
 
         <div className="mx-auto max-w-2xl lg:grid lg:max-w-7xl lg:grid-cols-2 lg:gap-x-8 xl:gap-x-24">
           <div>

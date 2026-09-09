@@ -1,6 +1,16 @@
-import { applyMiddleware, compose, combineReducers, createStore } from "redux";
+import { applyMiddleware, combineReducers, createStore } from "redux";
+import { composeWithDevTools } from "redux-devtools-extension";
 import { thunk } from "redux-thunk";
+
 import { cartReducer } from "./reducers/cartReducer";
+import {
+  orderCreateReducer,
+  orderDeliverReducer,
+  orderDetailsReducer,
+  orderListReducer,
+  orderMyListReducer,
+  orderPayReducer,
+} from "./reducers/orderReducers";
 import {
   productCreateReducer,
   productDeleteReducer,
@@ -11,13 +21,14 @@ import {
   productUpdateReducer,
 } from "./reducers/productReducers";
 import {
-  orderCreateReducer,
-  orderDeliverReducer,
-  orderDetailsReducer,
-  orderListReducer,
-  orderMyListReducer,
-  orderPayReducer,
-} from "./reducers/orderReducers";
+  supportMyTicketsReducer,
+  supportTicketAssignReducer,
+  supportTicketCreateReducer,
+  supportTicketDetailsReducer,
+  supportTicketReplyReducer,
+  supportTicketsListReducer,
+  supportTicketStatusReducer,
+} from "./reducers/supportReducers";
 import {
   userDeleteReducer,
   userDetailsReducer,
@@ -27,15 +38,6 @@ import {
   userUpdateProfileReducer as updateProfileReducer,
   userUpdateReducer,
 } from "./reducers/userReducers";
-import {
-  supportMyTicketsReducer,
-  supportTicketAssignReducer,
-  supportTicketCreateReducer,
-  supportTicketDetailsReducer,
-  supportTicketReplyReducer,
-  supportTicketsListReducer,
-  supportTicketStatusReducer,
-} from "./reducers/supportReducers";
 
 const reducer = combineReducers({
   productList: productListReducer,
@@ -90,14 +92,12 @@ const initialState = {
   userLogin: { userInfo: userInfoFromStorage },
 };
 
-const middleware = [thunk];
-
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const middlewares = [thunk];
 
 const store = createStore(
   reducer,
   initialState,
-  composeEnhancers(applyMiddleware(...middleware)),
+  composeWithDevTools(applyMiddleware(...middlewares)),
 );
 
 export default store;

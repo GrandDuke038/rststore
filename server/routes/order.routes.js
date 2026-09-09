@@ -1,5 +1,5 @@
 import express from "express";
-import { protect, admin } from "#middlewares/auth.middleware.js";
+
 import {
   createOrder,
   getMyOrders,
@@ -8,6 +8,7 @@ import {
   updateOrderToDelivered,
   updateOrderToPaid,
 } from "#controllers/order.controllers.js";
+import { protect, admin } from "#middlewares/auth.middleware.js";
 
 const router = express.Router();
 

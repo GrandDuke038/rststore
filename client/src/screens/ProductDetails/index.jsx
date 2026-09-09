@@ -1,22 +1,22 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { IoStar, IoStarOutline } from "react-icons/io5";
 import ReactMarkdown from "react-markdown";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
-import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
-import Rating from "@components/ProductCard/Rating";
-import QuantitySelector from "./QuantitySelector";
+import { addToCart } from "@actions/cartActions";
 import {
   createProductReview,
   getProductDetails,
   getProductReviews,
 } from "@actions/productActions";
-import Loader from "@components/Loader";
 import Alert from "@components/Alert";
-import { useDispatch } from "react-redux";
-import { addToCart } from "@actions/cartActions";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import { IoStar, IoStarOutline } from "react-icons/io5";
+import Loader from "@components/Loader";
+import Rating from "@components/ProductCard/Rating";
+import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
+
+import QuantitySelector from "./QuantitySelector";
 
 const ProductDetailsScreen = () => {
   const { id: productId } = useParams();
@@ -26,19 +26,16 @@ const ProductDetailsScreen = () => {
   const [comment, setComment] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { userInfo } = useSelector((state) => state.userLogin);
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
 
-  const productRequest = useSelector((state) => state.productDetails);
-  const reviewsRequest = useSelector((state) => state.productReviews);
-  const reviewRequest = useSelector((state) => state.productReviewCreate);
-  const product = productRequest.product;
-  const isLoading = productRequest.loading;
-  const isError = Boolean(productRequest.error);
-  const error = productRequest.error;
-  const reviews = reviewsRequest.reviews;
-  const reviewsLoading = reviewsRequest.loading;
-  const reviewsError = reviewsRequest.error;
-  const isSubmittingReview = reviewRequest.loading;
+  const productDetails = useSelector((state) => state.productDetails);
+  const productReviews = useSelector((state) => state.productReviews);
+  const productReviewCreate = useSelector((state) => state.productReviewCreate);
+  const { product, loading: isLoading, error } = productDetails;
+  const { reviews, loading: reviewsLoading, error: reviewsError } = productReviews;
+  const { loading: isSubmittingReview, error: reviewCreateError } = productReviewCreate;
+  const isError = Boolean(error);
 
   useEffect(() => {
     dispatch(getProductDetails(productId));
@@ -58,19 +55,12 @@ const ProductDetailsScreen = () => {
       return;
     }
 
-    try {
-      await dispatch(createProductReview({ productId, rating, comment }));
-      dispatch(getProductReviews(productId));
-      setRating(0);
-      setComment("");
-      toast.success("Thank you for your review");
-    } catch (reviewError) {
-      toast.error(
-        reviewError?.data?.message ||
-          reviewError?.error ||
-          "Unable to submit your review",
-      );
-    }
+    const review = await dispatch(createProductReview({ productId, rating, comment }));
+    if (!review) return;
+    dispatch(getProductReviews(productId));
+    setRating(0);
+    setComment("");
+    toast.success("Thank you for your review");
   };
 
   return (
@@ -88,6 +78,7 @@ const ProductDetailsScreen = () => {
           <Alert type="error">{error}</Alert>
         ) : (
           <div className="lg:grid lg:auto-rows-min lg:grid-cols-12 lg:gap-x-8">
+            {reviewCreateError && <Alert type="error">{reviewCreateError}</Alert>}
             {/* Image */}
 
             <div className="mt-8 lg:col-span-7 lg:mt-0">

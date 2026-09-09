@@ -1,55 +1,73 @@
-import { Link } from "react-router-dom";
-
-import Alert from "@components/Alert";
-import Loader from "@components/Loader";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import {
   createProduct,
   deleteProduct,
   listProducts,
 } from "@actions/productActions";
-import { toast } from "react-toastify";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import Alert from "@components/Alert";
+import Loader from "@components/Loader";
+import { PRODUCT_CREATE_RESET } from "../../constants/productConstants";
 
 const ProductListScreen = () => {
   const dispatch = useDispatch();
-  const request = useSelector((state) => state.productList);
-  const createRequest = useSelector((state) => state.productCreate);
-  const deleteRequest = useSelector((state) => state.productDelete);
-  const data = request;
-  const error = request.error;
-  const isLoading = request.loading;
-  const products = data.products;
-  const loadingCreate = createRequest.loading;
-  const loadingDelete = deleteRequest.loading;
+  const navigate = useNavigate();
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
+  const productList = useSelector((state) => state.productList);
+  const { products = [], loading: isLoading, error } = productList;
+
+  const productCreate = useSelector((state) => state.productCreate);
+  const {
+    loading: loadingCreate,
+    error: createError,
+    success: successCreate,
+    product: createdProduct,
+  } = productCreate;
+
+  const productDelete = useSelector((state) => state.productDelete);
+  const {
+    loading: loadingDelete,
+    error: deleteError,
+    success: successDelete,
+  } = productDelete;
+
+  const actionError = createError || deleteError;
+  const isAdmin = userInfo?.isAdmin === true;
 
   useEffect(() => {
-    dispatch(listProducts());
-  }, [dispatch]);
+    dispatch({ type: PRODUCT_CREATE_RESET });
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      try {
-        await dispatch(deleteProduct(id));
-        toast.success("Product deleted successfully");
-        dispatch(listProducts());
-      } catch (error) {
-        toast.error(error?.data?.message || error?.error);
-      }
+    if (isAdmin && successCreate && createdProduct) {
+      navigate(`/admin/product/${createdProduct._id}/edit`);
+      return;
     }
+
+    if (isAdmin) dispatch(listProducts());
+  }, [
+    createdProduct,
+    dispatch,
+    isAdmin,
+    navigate,
+    successCreate,
+    successDelete,
+  ]);
+
+  const handleDelete = (id) => {
+    if (!isAdmin || !window.confirm("Are you sure?")) return;
+    dispatch(deleteProduct(id));
   };
 
-  const handleCreateProduct = async () => {
-    if (window.confirm("Are you sure you want to create a new product?")) {
-      try {
-        await dispatch(createProduct());
-        dispatch(listProducts());
-      } catch (error) {
-        toast.error(error?.data?.message || error?.error);
-      }
-    }
+  const handleCreateProduct = () => {
+    if (!isAdmin) return;
+    dispatch(createProduct());
   };
+
+  if (!isAdmin) return <Navigate to="/login" replace />;
 
   return (
     <div className="bg-white">
@@ -61,7 +79,8 @@ const ProductListScreen = () => {
 
           <button
             onClick={handleCreateProduct}
-            type="submit"
+            type="button"
+            disabled={loadingCreate}
             className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm transition-all hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
           >
             {loadingCreate ? "Loading..." : "Create Product"}
@@ -70,8 +89,8 @@ const ProductListScreen = () => {
 
         {isLoading ? (
           <Loader />
-        ) : error ? (
-          <Alert type="error">{error}</Alert>
+        ) : error || actionError ? (
+          <Alert type="error">{error || actionError}</Alert>
         ) : (
           <div className="mt-8 flow-root">
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">

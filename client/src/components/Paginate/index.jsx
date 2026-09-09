@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
+
 import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
 } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
 
 const Paginate = ({ pages, page, nextCursor, keyword }) => {
   const routeForPage = (targetPage, cursor) => {

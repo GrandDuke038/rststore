@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, Navigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import { createTicket, getMyTickets } from "@actions/supportActions";
 import Alert from "@components/Alert";
 import Loader from "@components/Loader";
-import { createTicket, getMyTickets } from "@actions/supportActions";
 
 const categories = [
   "Order Issue",
@@ -30,7 +30,8 @@ const badgeClass = (
   })[status] || "bg-gray-100 text-gray-700";
 
 const SupportScreen = () => {
-  const { userInfo } = useSelector((state) => state.userLogin);
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
   const dispatch = useDispatch();
   const [status, setStatus] = useState("");
   const [form, setForm] = useState({
@@ -39,14 +40,13 @@ const SupportScreen = () => {
     priority: "medium",
     message: "",
   });
-  const ticketsRequest = useSelector((state) => state.supportMyTickets);
-  const createRequest = useSelector((state) => state.supportTicketCreate);
-  const data = ticketsRequest?.data;
-  const isLoading = !ticketsRequest || ticketsRequest.loading;
-  const error = ticketsRequest?.error;
-  const isCreating = Boolean(createRequest?.loading);
+  const supportMyTickets = useSelector((state) => state.supportMyTickets);
+  const supportTicketCreate = useSelector((state) => state.supportTicketCreate);
+  const { tickets: ticketsData, loading: ticketsLoading, error } = supportMyTickets;
+  const { loading: isCreating, error: createError } = supportTicketCreate;
+  const isLoading = !supportMyTickets || ticketsLoading;
 
-  const tickets = data?.tickets || [];
+  const tickets = ticketsData?.tickets || [];
 
   useEffect(() => {
     dispatch(getMyTickets(status ? { status } : {}));
@@ -63,19 +63,16 @@ const SupportScreen = () => {
       return;
     }
 
-    try {
-      await dispatch(createTicket(form));
-      dispatch(getMyTickets(status ? { status } : {}));
-      setForm({
-        subject: "",
-        category: categories[0],
-        priority: "medium",
-        message: "",
-      });
-      toast.success("Your support ticket has been submitted");
-    } catch (requestError) {
-      toast.error(requestError?.data?.message || requestError?.message);
-    }
+    const ticket = await dispatch(createTicket(form));
+    if (!ticket) return;
+    dispatch(getMyTickets(status ? { status } : {}));
+    setForm({
+      subject: "",
+      category: categories[0],
+      priority: "medium",
+      message: "",
+    });
+    toast.success("Your support ticket has been submitted");
   };
 
   return (
@@ -185,9 +182,9 @@ const SupportScreen = () => {
             </div>
             {isLoading ? (
               <Loader />
-            ) : error ? (
+            ) : error || createError ? (
               <Alert type="error">
-                {error?.data?.message || error?.message || error}
+                {error?.data?.message || error?.message || error || createError}
               </Alert>
             ) : tickets.length === 0 ? (
               <div className="mt-6 rounded-xl border border-dashed border-slate-300 p-10 text-center text-slate-500">

@@ -1,6 +1,6 @@
-import { Sequelize } from "sequelize";
 import colors from "colors";
 import dotenv from "dotenv";
+import { Sequelize } from "sequelize";
 
 // This module is imported before main.js and seeder.js execute their own
 // dotenv.config() calls, so load the database variables before constructing Sequelize.

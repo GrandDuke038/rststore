@@ -1,10 +1,13 @@
+import asyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
 
 import UserModel from "#models/user.model.js";
 
-const protect = async (req, res, next) => {
+const protect = asyncHandler(async (req, res, next) => {
   let token;
-  token = req.cookies.jwt;
+  token = req.headers.authorization?.startsWith("Bearer ")
+    ? req.headers.authorization.split(" ")[1]
+    : req.cookies.jwt;
 
   if (token) {
     try {
@@ -15,7 +18,6 @@ const protect = async (req, res, next) => {
       if (!req.user) throw new Error("User no longer exists");
       next();
     } catch (error) {
-      console.log(error);
       res.status(401);
       throw new Error("Not authorized, token failed");
     }
@@ -23,7 +25,7 @@ const protect = async (req, res, next) => {
     res.status(401);
     throw new Error("Not authorized, no token found");
   }
-};
+});
 
 const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {

@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import CheckoutSteps from "@components/CheckoutSteps";
 import { savePaymentMethod } from "@actions/cartActions";
+import CheckoutSteps from "@components/CheckoutSteps";
 
 const PaymentScreen = () => {
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ const PaymentScreen = () => {
   const { shippingAddress } = cart;
 
   useEffect(() => {
-    if (!shippingAddress) {
+    if (!shippingAddress?.address) {
       navigate("/shipping");
     }
   }, [shippingAddress, navigate]);
@@ -47,10 +46,10 @@ const PaymentScreen = () => {
                   <input
                     type="radio"
                     id="paymentMethod"
-                    value={paymentMethod}
+                    value="paypal"
+                    checked={paymentMethod === "paypal"}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="h-4 w-4 font-medium leading-6 text-slate-900"
-                    defaultChecked
                   />
                   <label
                     htmlFor="paymentMethod"

@@ -1,5 +1,7 @@
 import { DataTypes, Model } from "sequelize";
+
 import { sequelize } from "#config/db.config.js";
+
 const SupportReplyModel = sequelize.define(
   "SupportReplyModel",
   {

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+
 const CategoryImageBox = ({ url, imageUrl, label }) => {
   return (
     <div>

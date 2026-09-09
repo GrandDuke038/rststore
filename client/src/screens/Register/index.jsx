@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import { register } from "@actions/userActions";
-import { toast } from "react-toastify";
+import Alert from "@components/Alert";
 
 const RegisterScreen = () => {
   const dispatch = useDispatch();
@@ -14,8 +15,10 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const { userInfo } = useSelector((state) => state.userLogin);
-  const isLoading = useSelector((state) => state.userRegister.loading);
+  const userLogin = useSelector((state) => state.userLogin);
+  const userRegister = useSelector((state) => state.userRegister);
+  const { userInfo } = userLogin;
+  const { loading: isLoading, error } = userRegister;
 
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
@@ -27,21 +30,15 @@ const RegisterScreen = () => {
     }
   }, [navigate, redirect, userInfo]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
-    } else {
-      try {
-        await dispatch(register(name, email, password));
-        navigate(redirect);
-      } catch (error) {
-        console.error(error);
-        toast.error(error?.data?.message);
-      }
     }
+
+    dispatch(register(name, email, password));
   };
 
   return (
@@ -54,6 +51,7 @@ const RegisterScreen = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          {error && <Alert type="error">{error}</Alert>}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label

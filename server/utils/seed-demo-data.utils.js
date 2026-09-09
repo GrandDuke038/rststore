@@ -1,12 +1,12 @@
-import ProductModel from "#models/product.model.js";
-import OrderModel from "#models/order.model.js";
-import OrderItemModel from "#models/order-item.model.js";
-import ReviewModel from "#models/review.model.js";
-import SupportModel from "#models/support.model.js";
-import SupportReplyModel from "#models/support-reply.model.js";
-import UserModel from "#models/user.model.js";
 import products from "#data/products.data.js";
 import users from "#data/users.data.js";
+import OrderItemModel from "#models/order-item.model.js";
+import OrderModel from "#models/order.model.js";
+import ProductModel from "#models/product.model.js";
+import ReviewModel from "#models/review.model.js";
+import SupportReplyModel from "#models/support-reply.model.js";
+import SupportModel from "#models/support.model.js";
+import UserModel from "#models/user.model.js";
 
 const templates = [{ rating: 5, comment: "Great quality and exactly as described. I would happily recommend it." }, { rating: 4, comment: "Comfortable, well made, and a lovely addition to my wardrobe." }, { rating: 5, comment: "The fit and finish are excellent. It arrived looking just like the photos." }];
 export const seedDemoDataIfDatabaseEmpty = async () => {

@@ -1,14 +1,15 @@
 import { lazy, Suspense } from "react";
-import Layout from "@components/Layout";
-
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
-import store from "./store";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import PrivateRoute from "@components/PrivateRoute";
+
 import AdminRoute from "@components/AdminRoute";
+import Layout from "@components/Layout";
 import Loader from "@components/Loader";
+import PrivateRoute from "@components/PrivateRoute";
+
+import store from "./store";
 
 const HomeScreen = lazy(() => import("@screens/Home"));
 const ErrorScreen = lazy(() => import("@screens/Error"));

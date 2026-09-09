@@ -1,3 +1,16 @@
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+
+import {
+  deliverOrder,
+  getOrderDetails,
+  getPayPalClientId,
+  payOrder,
+} from "@actions/orderActions";
+import Alert from "@components/Alert";
+import Loader from "@components/Loader";
 import {
   CheckBadgeIcon,
   ExclamationTriangleIcon,
@@ -7,36 +20,22 @@ import {
   PayPalScriptProvider,
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
-
-import Alert from "@components/Alert";
-import Loader from "@components/Loader";
-
-import {
-  deliverOrder,
-  getOrderDetails,
-  getPayPalClientId,
-  payOrder,
-} from "@actions/orderActions";
-import { useEffect, useState } from "react";
 
 const OrderContent = () => {
   const { id: orderId } = useParams();
   const dispatch = useDispatch();
-  const orderRequest = useSelector((state) => state.orderDetails);
-  const payRequest = useSelector((state) => state.orderPay);
-  const deliverRequest = useSelector((state) => state.orderDeliver);
-  const order = orderRequest.order;
-  const isLoading = orderRequest.loading;
-  const error = orderRequest.error;
-  const loadingPay = payRequest.loading;
-  const loadingDeliver = deliverRequest.loading;
+  const orderDetails = useSelector((state) => state.orderDetails);
+  const orderPay = useSelector((state) => state.orderPay);
+  const orderDeliver = useSelector((state) => state.orderDeliver);
+  const { order, loading: isLoading, error } = orderDetails;
+  const { loading: loadingPay, error: payError } = orderPay;
+  const { loading: loadingDeliver, error: deliverError } = orderDeliver;
+  const actionError = payError || deliverError;
 
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
-  const { userInfo } = useSelector((state) => state.userLogin);
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
 
   const [paypal, setPaypal] = useState(null);
   const [loadingPayPal, setLoadingPayPal] = useState(true);
@@ -76,14 +75,10 @@ const OrderContent = () => {
 
   const onApprove = (data, actions) => {
     return actions.order.capture().then(async function (details) {
-      try {
-        console.log(details);
-        await dispatch(payOrder(orderId, details));
-        dispatch(getOrderDetails(orderId));
-        toast.success("Order paid successfully");
-      } catch (error) {
-        toast.error(error?.data?.message || error?.message);
-      }
+      const paidOrder = await dispatch(payOrder(orderId, details));
+      if (!paidOrder) return;
+      dispatch(getOrderDetails(orderId));
+      toast.success("Order paid successfully");
     });
   };
 
@@ -108,19 +103,16 @@ const OrderContent = () => {
   };
 
   const handleDeliver = async () => {
-    try {
-      await dispatch(deliverOrder(orderId));
-      dispatch(getOrderDetails(orderId));
-      toast.success("Order marked as delivered");
-    } catch (error) {
-      toast.error(error?.data?.message || error?.message);
-    }
+    const deliveredOrder = await dispatch(deliverOrder(orderId));
+    if (!deliveredOrder) return;
+    dispatch(getOrderDetails(orderId));
+    toast.success("Order marked as delivered");
   };
 
   return isLoading ? (
     <Loader />
-  ) : error ? (
-    <Alert type="error">{error}</Alert>
+  ) : error || actionError ? (
+    <Alert type="error">{error || actionError}</Alert>
   ) : (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 py-16 pb-24 pt-12 sm:px-6 lg:max-w-7xl lg:px-8">

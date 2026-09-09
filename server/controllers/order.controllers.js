@@ -1,7 +1,9 @@
-import OrderModel from "#models/order.model.js";
-import OrderItemModel from "#models/order-item.model.js";
-import UserModel from "#models/user.model.js";
+import asyncHandler from "express-async-handler";
+
 import { sequelize } from "#config/db.config.js";
+import OrderItemModel from "#models/order-item.model.js";
+import OrderModel from "#models/order.model.js";
+import UserModel from "#models/user.model.js";
 
 const orderInclude = [
   { model: OrderItemModel, as: "orderItems" },
@@ -19,7 +21,7 @@ const presentOrder = (order) => {
       })) || [],
   };
 };
-const createOrder = async (req, res) => {
+const createOrder = asyncHandler(async (req, res) => {
   const {
     orderItems,
     shippingAddress,
@@ -66,8 +68,8 @@ const createOrder = async (req, res) => {
         await OrderModel.findByPk(order._id, { include: orderInclude }),
       ),
     );
-};
-const getMyOrders = async (req, res) => {
+});
+const getMyOrders = asyncHandler(async (req, res) => {
   const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 10, 1), 50);
   const page = Math.max(Number(req.query.pageNumber) || 1, 1);
   const { rows, count } = await OrderModel.findAndCountAll({
@@ -82,8 +84,8 @@ const getMyOrders = async (req, res) => {
     page,
     pages: Math.ceil(count / pageSize),
   });
-};
-const getOrderById = async (req, res) => {
+});
+const getOrderById = asyncHandler(async (req, res) => {
   const order = await OrderModel.findByPk(req.params.id, {
     include: orderInclude,
   });
@@ -96,8 +98,8 @@ const getOrderById = async (req, res) => {
     throw new Error("Not authorized to view this order");
   }
   res.json(presentOrder(order));
-};
-const updateOrderToPaid = async (req, res) => {
+});
+const updateOrderToPaid = asyncHandler(async (req, res) => {
   const order = await OrderModel.findByPk(req.params.id);
   if (!order) {
     res.status(404);
@@ -118,8 +120,8 @@ const updateOrderToPaid = async (req, res) => {
     },
   });
   res.json(order);
-};
-const updateOrderToDelivered = async (req, res) => {
+});
+const updateOrderToDelivered = asyncHandler(async (req, res) => {
   const order = await OrderModel.findByPk(req.params.id);
   if (!order) {
     res.status(404);
@@ -127,8 +129,8 @@ const updateOrderToDelivered = async (req, res) => {
   }
   await order.update({ isDelivered: true, deliveredAt: new Date() });
   res.json(order);
-};
-const getOrders = async (req, res) => {
+});
+const getOrders = asyncHandler(async (req, res) => {
   const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 25, 1), 100);
   const page = Math.max(Number(req.query.pageNumber) || 1, 1);
   const { rows, count } = await OrderModel.findAndCountAll({
@@ -148,7 +150,7 @@ const getOrders = async (req, res) => {
     page,
     pages: Math.ceil(count / pageSize),
   });
-};
+});
 export {
   createOrder,
   getMyOrders,

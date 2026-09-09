@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-import ItemQuantityDropdown from "./ItemQuantityDropdown";
+
 import { CheckIcon, ClockIcon, XMarkIcon } from "@heroicons/react/24/outline";
+
+import ItemQuantityDropdown from "./ItemQuantityDropdown";
 
 const CartItem = ({
   product,

@@ -1,11 +1,13 @@
-import MobileSearchBar from "./MobileSearchBar";
-import MobileMenuItem from "./MobileMenuItem";
+import { useSelector } from "react-redux";
+
 import {
   ShoppingCartIcon,
   TagIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import { useSelector } from "react-redux";
+
+import MobileMenuItem from "./MobileMenuItem";
+import MobileSearchBar from "./MobileSearchBar";
 
 const MobileMenu = () => {
   const { userInfo } = useSelector((state) => state.userLogin);

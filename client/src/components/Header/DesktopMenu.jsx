@@ -1,14 +1,15 @@
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+
+import { logout } from "@actions/userActions";
 import {
   Cog8ToothIcon,
   ShoppingCartIcon,
   TagIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
 
-import { logout } from "@actions/userActions";
 import MenuItem from "./MenuItem";
 
 const DesktopMenu = () => {

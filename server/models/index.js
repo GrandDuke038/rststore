@@ -1,10 +1,11 @@
-import UserModel from "#models/user.model.js";
+import OrderItemModel from "#models/order-item.model.js";
+import OrderModel from "#models/order.model.js";
 import ProductModel from "#models/product.model.js";
 import ReviewModel from "#models/review.model.js";
-import OrderModel from "#models/order.model.js";
-import OrderItemModel from "#models/order-item.model.js";
-import SupportModel from "#models/support.model.js";
 import SupportReplyModel from "#models/support-reply.model.js";
+import SupportModel from "#models/support.model.js";
+import UserModel from "#models/user.model.js";
+
 let initialised = false;
 export default function initialiseModels() {
   if (initialised) return;

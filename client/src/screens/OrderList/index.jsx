@@ -1,19 +1,16 @@
-import { Link } from "react-router-dom";
-
-import Alert from "@components/Alert";
-import Loader from "@components/Loader";
-import { listOrders } from "@actions/orderActions";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+
+import { listOrders } from "@actions/orderActions";
+import Alert from "@components/Alert";
+import Loader from "@components/Loader";
 
 const OrderListScreen = () => {
   const [page, setPage] = useState(1);
   const dispatch = useDispatch();
-  const request = useSelector((state) => state.orderList);
-  const data = request;
-  const isLoading = request.loading;
-  const error = request.error;
-  const orders = data?.orders || [];
+  const orderList = useSelector((state) => state.orderList);
+  const { orders = [], pages, loading: isLoading, error } = orderList;
 
   useEffect(() => {
     dispatch(listOrders(page));
@@ -134,10 +131,10 @@ const OrderListScreen = () => {
             </div>
           </div>
         )}
-        {data?.pages > 1 && (
+        {pages > 1 && (
           <div className="mt-6 flex justify-end gap-3">
             <button disabled={page === 1} onClick={() => setPage(page - 1)} type="button">Previous</button>
-            <button disabled={page === data.pages} onClick={() => setPage(page + 1)} type="button">Next</button>
+            <button disabled={page === pages} onClick={() => setPage(page + 1)} type="button">Next</button>
           </div>
         )}
       </div>

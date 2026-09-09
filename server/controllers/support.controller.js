@@ -1,18 +1,220 @@
+import asyncHandler from "express-async-handler";
 import { Op } from "sequelize";
-import SupportModel from "#models/support.model.js";
+
 import SupportReplyModel from "#models/support-reply.model.js";
+import SupportModel from "#models/support.model.js";
 import UserModel from "#models/user.model.js";
-const statuses = ["open", "in_progress", "resolved", "closed"], categories = ["Order Issue", "Payment Issue", "Delivery Issue", "Product Issue", "Account Issue", "Technical Issue", "Other"], priorities = ["low", "medium", "high"];
-const pageOf = (q, size = 25) => ({ pageSize: Math.min(Math.max(Number(q.pageSize) || size, 1), 100), page: Math.max(Number(q.pageNumber) || 1, 1) });
-const ticketInclude = [{ model: UserModel, as: "userRecord", attributes: ["_id", "name", "email", "isAdmin"] }, { model: UserModel, as: "assignee", attributes: ["_id", "name", "email", "isAdmin"] }, { model: SupportReplyModel, as: "replies", include: [{ model: UserModel, as: "senderRecord", attributes: ["_id", "name", "email", "isAdmin"] }] }];
-const present = (ticket) => { const data = ticket.toJSON(); return { ...data, user: data.userRecord, assignedTo: data.assignee, replies: data.replies?.map((reply) => ({ ...reply, sender: reply.senderRecord })) || [] }; };
-const findTicket = async (id) => { const ticket = await SupportModel.findByPk(id, { include: ticketInclude }); return ticket ? present(ticket) : null; };
-const permitted = (ticket, user) => user.isAdmin || ticket.user?._id === user._id;
-const createTicket = async (req, res) => { const { subject, category, message, priority = "medium" } = req.body; if (!subject?.trim() || !message?.trim() || !categories.includes(category)) { res.status(400); throw new Error("Subject, category, and message are required"); } if (!priorities.includes(priority)) { res.status(400); throw new Error("Invalid ticket priority"); } res.status(201).json(await SupportModel.create({ user: req.user._id, subject, category, message, priority })); };
-const getMyTickets = async (req, res) => { const { pageSize, page } = pageOf(req.query, 10), where = { user: req.user._id }; if (statuses.includes(req.query.status)) where.status = req.query.status; const { rows, count } = await SupportModel.findAndCountAll({ where, include: [{ model: UserModel, as: "assignee", attributes: ["_id", "name"] }], order: [["updatedAt", "DESC"]], offset: (page - 1) * pageSize, limit: pageSize }); res.json({ tickets: rows.map((ticket) => ({ ...ticket.toJSON(), assignedTo: ticket.assignee })), page, pages: Math.ceil(count / pageSize) }); };
-const getTicketById = async (req, res) => { const ticket = await findTicket(req.params.id); if (!ticket) { res.status(404); throw new Error("Support ticket not found"); } if (!permitted(ticket, req.user)) { res.status(403); throw new Error("Not authorized to access this support ticket"); } res.json(ticket); };
-const addReply = async (req, res) => { if (!req.body.message?.trim()) { res.status(400); throw new Error("Reply message is required"); } const ticket = await findTicket(req.params.id); if (!ticket) { res.status(404); throw new Error("Support ticket not found"); } if (!permitted(ticket, req.user)) { res.status(403); throw new Error("Not authorized to reply to this support ticket"); } await SupportReplyModel.create({ ticket: ticket._id, sender: req.user._id, message: req.body.message }); await SupportModel.update({ updatedAt: new Date() }, { where: { _id: ticket._id }, silent: true }); res.status(201).json(await findTicket(ticket._id)); };
-const getTickets = async (req, res) => { const { pageSize, page } = pageOf(req.query), where = {}; if (statuses.includes(req.query.status)) where.status = req.query.status; if (categories.includes(req.query.category)) where.category = req.query.category; if (priorities.includes(req.query.priority)) where.priority = req.query.priority; if (req.query.search?.trim()) where[Op.or] = ["subject", "message"].map((field) => ({ [field]: { [Op.like]: `%${req.query.search.trim()}%` } })); const { rows, count } = await SupportModel.findAndCountAll({ where, include: [{ model: UserModel, as: "userRecord", attributes: ["_id", "name", "email"] }, { model: UserModel, as: "assignee", attributes: ["_id", "name"] }], order: [["updatedAt", "DESC"]], offset: (page - 1) * pageSize, limit: pageSize }); res.json({ tickets: rows.map(present), page, pages: Math.ceil(count / pageSize) }); };
-const updateTicketStatus = async (req, res) => { if (!statuses.includes(req.body.status)) { res.status(400); throw new Error("Invalid ticket status"); } const ticket = await SupportModel.findByPk(req.params.id); if (!ticket) { res.status(404); throw new Error("Support ticket not found"); } await ticket.update({ status: req.body.status }); res.json(await findTicket(ticket._id)); };
-const assignTicket = async (req, res) => { const ticket = await SupportModel.findByPk(req.params.id); if (!ticket) { res.status(404); throw new Error("Support ticket not found"); } if (req.body.assignedTo) { const assignee = await UserModel.findByPk(req.body.assignedTo); if (!assignee?.isAdmin) { res.status(400); throw new Error("Tickets can only be assigned to an admin user"); } } await ticket.update({ assignedTo: req.body.assignedTo || null }); res.json(await findTicket(ticket._id)); };
-export { addReply, assignTicket, createTicket, getMyTickets, getTicketById, getTickets, updateTicketStatus };
+
+const statuses = ["open", "in_progress", "resolved", "closed"],
+  categories = [
+    "Order Issue",
+    "Payment Issue",
+    "Delivery Issue",
+    "Product Issue",
+    "Account Issue",
+    "Technical Issue",
+    "Other",
+  ],
+  priorities = ["low", "medium", "high"];
+const pageOf = (q, size = 25) => ({
+  pageSize: Math.min(Math.max(Number(q.pageSize) || size, 1), 100),
+  page: Math.max(Number(q.pageNumber) || 1, 1),
+});
+const ticketInclude = [
+  {
+    model: UserModel,
+    as: "userRecord",
+    attributes: ["_id", "name", "email", "isAdmin"],
+  },
+  {
+    model: UserModel,
+    as: "assignee",
+    attributes: ["_id", "name", "email", "isAdmin"],
+  },
+  {
+    model: SupportReplyModel,
+    as: "replies",
+    include: [
+      {
+        model: UserModel,
+        as: "senderRecord",
+        attributes: ["_id", "name", "email", "isAdmin"],
+      },
+    ],
+  },
+];
+const present = (ticket) => {
+  const data = ticket.toJSON();
+  return {
+    ...data,
+    user: data.userRecord,
+    assignedTo: data.assignee,
+    replies:
+      data.replies?.map((reply) => ({
+        ...reply,
+        sender: reply.senderRecord,
+      })) || [],
+  };
+};
+const findTicket = async (id) => {
+  const ticket = await SupportModel.findByPk(id, { include: ticketInclude });
+  return ticket ? present(ticket) : null;
+};
+const permitted = (ticket, user) =>
+  user.isAdmin || ticket.user?._id === user._id;
+const createTicket = asyncHandler(async (req, res) => {
+  const { subject, category, message, priority = "medium" } = req.body;
+  if (!subject?.trim() || !message?.trim() || !categories.includes(category)) {
+    res.status(400);
+    throw new Error("Subject, category, and message are required");
+  }
+  if (!priorities.includes(priority)) {
+    res.status(400);
+    throw new Error("Invalid ticket priority");
+  }
+  res.status(201).json(
+    await SupportModel.create({
+      user: req.user._id,
+      subject,
+      category,
+      message,
+      priority,
+    }),
+  );
+});
+
+const getMyTickets = asyncHandler(async (req, res) => {
+  const { pageSize, page } = pageOf(req.query, 10),
+    where = { user: req.user._id };
+  if (statuses.includes(req.query.status)) where.status = req.query.status;
+  const { rows, count } = await SupportModel.findAndCountAll({
+    where,
+    include: [
+      { model: UserModel, as: "assignee", attributes: ["_id", "name"] },
+    ],
+    order: [["updatedAt", "DESC"]],
+    offset: (page - 1) * pageSize,
+    limit: pageSize,
+  });
+  res.json({
+    tickets: rows.map((ticket) => ({
+      ...ticket.toJSON(),
+      assignedTo: ticket.assignee,
+    })),
+    page,
+    pages: Math.ceil(count / pageSize),
+  });
+});
+
+const getTicketById = asyncHandler(async (req, res) => {
+  const ticket = await findTicket(req.params.id);
+  if (!ticket) {
+    res.status(404);
+    throw new Error("Support ticket not found");
+  }
+  if (!permitted(ticket, req.user)) {
+    res.status(403);
+    throw new Error("Not authorized to access this support ticket");
+  }
+  res.json(ticket);
+});
+
+const addReply = asyncHandler(async (req, res) => {
+  if (!req.body.message?.trim()) {
+    res.status(400);
+    throw new Error("Reply message is required");
+  }
+  const ticket = await findTicket(req.params.id);
+  if (!ticket) {
+    res.status(404);
+    throw new Error("Support ticket not found");
+  }
+  if (!permitted(ticket, req.user)) {
+    res.status(403);
+    throw new Error("Not authorized to reply to this support ticket");
+  }
+  await SupportReplyModel.create({
+    ticket: ticket._id,
+    sender: req.user._id,
+    message: req.body.message,
+  });
+  await SupportModel.update(
+    { updatedAt: new Date() },
+    { where: { _id: ticket._id }, silent: true },
+  );
+  res.status(201).json(await findTicket(ticket._id));
+});
+
+const getTickets = asyncHandler(async (req, res) => {
+  const { pageSize, page } = pageOf(req.query),
+    where = {};
+  if (statuses.includes(req.query.status)) where.status = req.query.status;
+  if (categories.includes(req.query.category))
+    where.category = req.query.category;
+  if (priorities.includes(req.query.priority))
+    where.priority = req.query.priority;
+  if (req.query.search?.trim())
+    where[Op.or] = ["subject", "message"].map((field) => ({
+      [field]: { [Op.like]: `%${req.query.search.trim()}%` },
+    }));
+  const { rows, count } = await SupportModel.findAndCountAll({
+    where,
+    include: [
+      {
+        model: UserModel,
+        as: "userRecord",
+        attributes: ["_id", "name", "email"],
+      },
+      { model: UserModel, as: "assignee", attributes: ["_id", "name"] },
+    ],
+    order: [["updatedAt", "DESC"]],
+    offset: (page - 1) * pageSize,
+    limit: pageSize,
+  });
+  res.json({
+    tickets: rows.map(present),
+    page,
+    pages: Math.ceil(count / pageSize),
+  });
+});
+
+const updateTicketStatus = asyncHandler(async (req, res) => {
+  if (!statuses.includes(req.body.status)) {
+    res.status(400);
+    throw new Error("Invalid ticket status");
+  }
+  const ticket = await SupportModel.findByPk(req.params.id);
+  if (!ticket) {
+    res.status(404);
+    throw new Error("Support ticket not found");
+  }
+  await ticket.update({ status: req.body.status });
+  res.json(await findTicket(ticket._id));
+});
+
+const assignTicket = asyncHandler(async (req, res) => {
+  const ticket = await SupportModel.findByPk(req.params.id);
+  if (!ticket) {
+    res.status(404);
+    throw new Error("Support ticket not found");
+  }
+  if (req.body.assignedTo) {
+    const assignee = await UserModel.findByPk(req.body.assignedTo);
+    if (!assignee?.isAdmin) {
+      res.status(400);
+      throw new Error("Tickets can only be assigned to an admin user");
+    }
+  }
+  await ticket.update({ assignedTo: req.body.assignedTo || null });
+  res.json(await findTicket(ticket._id));
+});
+
+export {
+  addReply,
+  assignTicket,
+  createTicket,
+  getMyTickets,
+  getTicketById,
+  getTickets,
+  updateTicketStatus,
+};

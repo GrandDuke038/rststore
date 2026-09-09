@@ -1,6 +1,5 @@
 import express from "express";
 
-import { admin, protect } from "#middlewares/auth.middleware.js";
 import {
   addReply,
   assignTicket,
@@ -10,6 +9,7 @@ import {
   getTickets,
   updateTicketStatus,
 } from "#controllers/support.controller.js";
+import { admin, protect } from "#middlewares/auth.middleware.js";
 
 const router = express.Router();
 

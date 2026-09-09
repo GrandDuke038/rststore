@@ -1,8 +1,11 @@
 import express from "express";
+import asyncHandler from "express-async-handler";
 import multer from "multer";
-import path from "path";
 import { unlink } from "node:fs/promises";
+import path from "path";
 import sharp from "sharp";
+
+import { admin, protect } from "#middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -38,7 +41,7 @@ const upload = multer({
   },
 });
 
-router.post("/", upload.single("image"), async (req, res) => {
+router.post("/", protect, admin, upload.single("image"), asyncHandler(async (req, res) => {
   const sourcePath = req.file.path;
   const optimizedName = `${path.parse(req.file.filename).name}.webp`;
   const optimizedPath = path.join("uploads", optimizedName);
@@ -54,6 +57,6 @@ router.post("/", upload.single("image"), async (req, res) => {
     message: "Image uploaded and optimized",
     image: `/uploads/${optimizedName}`,
   });
-});
+}));
 
 export default router;
