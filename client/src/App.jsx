@@ -30,6 +30,17 @@ const RegisterScreen = lazy(() => import("@screens/Register"));
 const SupportScreen = lazy(() => import("@screens/Support"));
 const SupportTicketScreen = lazy(() => import("@screens/SupportTicket"));
 const AdminSupportScreen = lazy(() => import("@screens/AdminSupport"));
+const AdminTikTokScreen = lazy(() => import("@screens/AdminTikTok"));
+const TermsOfServiceScreen = lazy(() =>
+  import("@screens/Legal").then(({ TermsOfServiceScreen }) => ({
+    default: TermsOfServiceScreen,
+  })),
+);
+const PrivacyPolicyScreen = lazy(() =>
+  import("@screens/Legal").then(({ PrivacyPolicyScreen }) => ({
+    default: PrivacyPolicyScreen,
+  })),
+);
 
 const router = createBrowserRouter([
   {
@@ -58,6 +69,8 @@ const router = createBrowserRouter([
       { path: "/cart", element: <CartScreen /> },
       { path: "/register", element: <RegisterScreen /> },
       { path: "/login", element: <LoginScreen /> },
+      { path: "/terms-of-service", element: <TermsOfServiceScreen /> },
+      { path: "/privacy-policy", element: <PrivacyPolicyScreen /> },
       {
         path: "",
         element: <PrivateRoute />,
@@ -81,6 +94,7 @@ const router = createBrowserRouter([
           { path: "admin/user-list", element: <UserListScreen /> },
           { path: "admin/user/:id/edit", element: <UserEditScreen /> },
           { path: "admin/support", element: <AdminSupportScreen /> },
+          { path: "admin/tiktok", element: <AdminTikTokScreen /> },
           { path: "admin/support/:id", element: <SupportTicketScreen /> },
         ],
       },

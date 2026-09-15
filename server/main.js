@@ -10,6 +10,7 @@ import { errorHandler, notFound } from "#middlewares/error.middleware.js";
 import orderRoutes from "#routes/order.routes.js";
 import productRoutes from "#routes/product.routes.js";
 import supportRoutes from "#routes/support.routes.js";
+import tiktokRoutes from "#routes/tiktok.routes.js";
 import uploadRoutes from "#routes/upload.routes.js";
 import userRoutes from "#routes/user.routes.js";
 import { seedDemoDataIfDatabaseEmpty } from "#utils/seed-demo-data.utils.js";
@@ -28,6 +29,7 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/support", supportRoutes);
+app.use("/api/v1/tiktok", tiktokRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
 
 app.use("/api/v1/config/paypal", (req, res) => {

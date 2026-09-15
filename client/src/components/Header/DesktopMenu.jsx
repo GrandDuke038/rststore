@@ -143,6 +143,12 @@ const DesktopMenu = () => {
               >
                 Support Tickets
               </Link>
+              <Link
+                to="/admin/tiktok"
+                className="block px-4 py-2 text-sm text-gray-700 transition-all hover:bg-gray-200 focus:bg-gray-300"
+              >
+                TikTok
+              </Link>
             </nav>
           )}
         </div>

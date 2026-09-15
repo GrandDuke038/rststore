@@ -4,6 +4,7 @@ import ProductModel from "#models/product.model.js";
 import ReviewModel from "#models/review.model.js";
 import SupportReplyModel from "#models/support-reply.model.js";
 import SupportModel from "#models/support.model.js";
+import TikTokConnectionModel from "#models/tiktok-connection.model.js";
 import UserModel from "#models/user.model.js";
 
 let initialised = false;
@@ -34,6 +35,10 @@ export default function initialiseModels() {
   SupportReplyModel.belongsTo(UserModel, {
     foreignKey: "sender",
     as: "senderRecord",
+  });
+  TikTokConnectionModel.belongsTo(UserModel, {
+    foreignKey: "connectedBy",
+    as: "connectedByUser",
   });
   initialised = true;
 }

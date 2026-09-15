@@ -23,5 +23,15 @@ services:
         generateValue: true
       - key: PAYPAL_CLIENT_ID
         sync: false
+      - key: TIKTOK_CLIENT_KEY
+        sync: false
+      - key: TIKTOK_CLIENT_SECRET
+        sync: false
+      - key: TIKTOK_REDIRECT_URI
+        value: https://rststore.onrender.com/api/v1/tiktok/callback
+      - key: TIKTOK_TOKEN_ENCRYPTION_KEY
+        generateValue: true
+      - key: TIKTOK_OAUTH_STATE_SECRET
+        generateValue: true
       - key: SEED_DEMO_DATA
         value: "true"
