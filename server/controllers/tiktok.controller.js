@@ -115,11 +115,11 @@ const startConnection = asyncHandler(async (req, res) => {
   url.search = new URLSearchParams({
     client_key: process.env.TIKTOK_CLIENT_KEY,
     response_type: "code",
-    scope: "user.info.basic,video.list,video.publish",
+    scope: process.env.TIKTOK_SCOPES || "user.info.basic,video.list",
     redirect_uri: process.env.TIKTOK_REDIRECT_URI,
     state: signedState(req.user._id),
   });
-  res.redirect(url.toString());
+  res.json({ authorizationUrl: url.toString() });
 });
 const callback = asyncHandler(async (req, res) => {
   required();

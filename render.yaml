@@ -32,7 +32,9 @@ services:
       - key: TIKTOK_CLIENT_SECRET
         sync: false
       - key: TIKTOK_REDIRECT_URI
-        value: https://rststore.onrender.com/api/v1/tiktok/callback
+        value: https://rststore-dwsu.onrender.com/api/v1/tiktok/callback
+      - key: TIKTOK_SCOPES
+        value: user.info.basic,video.list
       - key: TIKTOK_TOKEN_ENCRYPTION_KEY
         generateValue: true
       - key: TIKTOK_OAUTH_STATE_SECRET

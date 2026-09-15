@@ -27,6 +27,15 @@ const AdminTikTokScreen = () => {
       setError(err.response?.data?.message || err.message);
     }
   };
+  const connectTikTok = async () => {
+    try {
+      setError("");
+      const response = await axios.get("/api/v1/tiktok/connect", config);
+      window.location.assign(response.data.authorizationUrl);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    }
+  };
   useEffect(() => { load(); }, []);
 
   if (!status && !error) return <Loader />;
@@ -37,9 +46,9 @@ const AdminTikTokScreen = () => {
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">TikTok</h1>
           <p className="mt-2 text-slate-600">Connect the store’s account and view recent TikTok posts.</p>
         </div>
-        <a href="/api/v1/tiktok/connect" className="rounded-md bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700">
+        <button type="button" onClick={connectTikTok} className="rounded-md bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700">
           {status?.connected ? "Reconnect TikTok" : "Connect TikTok"}
-        </a>
+        </button>
       </div>
       {params.get("connection") === "success" && <Alert type="success">TikTok account connected successfully.</Alert>}
       {params.get("connection") === "failed" && <Alert type="error">TikTok connection was not completed. Please try again.</Alert>}
