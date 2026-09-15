@@ -6,10 +6,30 @@ import { Sequelize } from "sequelize";
 // dotenv.config() calls, so load the database variables before constructing Sequelize.
 dotenv.config();
 
+const databaseUri =
+  process.env.DB_URI || "mysql://root@127.0.0.1:3306/rststore";
+const databaseUrl = new URL(databaseUri);
+const sslMode = databaseUrl.searchParams.get("ssl-mode")?.toLowerCase();
+const sslCertificate = process.env.DB_SSL_CA?.replace(/\\n/g, "\n");
+
+// MySQL2 does not understand the `ssl-mode` URL parameter used by managed
+// providers such as Aiven. Configure TLS through dialectOptions instead.
+databaseUrl.searchParams.delete("ssl-mode");
+
+const sslOptions =
+  sslMode === "required" || process.env.DB_SSL === "true" || sslCertificate
+    ? {
+        ssl: sslCertificate
+          ? { ca: sslCertificate, rejectUnauthorized: true }
+          : { rejectUnauthorized: false },
+      }
+    : undefined;
+
 const sequelize = new Sequelize(
-  process.env.DB_URI || "mysql://root@127.0.0.1:3306/rststore",
+  databaseUrl.toString(),
   {
     dialect: "mysql",
+    dialectOptions: sslOptions,
     logging: false,
     pool: { max: Number(process.env.DB_POOL_MAX) || 10, min: 0, idle: 10000 },
   },

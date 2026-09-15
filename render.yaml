@@ -11,6 +11,10 @@ services:
         value: production
       - key: DB_HOST
         sync: false
+      - key: DB_URI
+        sync: false
+      - key: DB_SSL_CA
+        sync: false
       - key: DB_PORT
         value: "3306"
       - key: DB_NAME
